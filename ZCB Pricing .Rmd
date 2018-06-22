@@ -11,5 +11,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 print("hello world")
+print("if you are seeing this, then you waited too long to test the repository :(")
 ```
 
