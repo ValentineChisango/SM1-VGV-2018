@@ -5,7 +5,7 @@ author:
 - George Parekkadavil
 - Vegan Pather
 
-date: "6/22/2018"
+date: "`r format(Sys.time(), '%d %B %Y')`"
 output: html_document
 ---
 
@@ -54,22 +54,29 @@ monte_carlo <- function(alpha, beta, sigma, t, T, r, n, s){
 ```
 
 ```{r 3}
+# Improvements to the Monte Carlo Simulation
+# Antithetic Variates
+
+```
+
+
+```{r 4}
 # Explicit Method
 ```
 
-```{r 4}
+```{r 5}
 # Implicit Method
 ```
 
-```{r 5}
+```{r 6}
 # Crank-Nicholson Method
 ```
 
-```{r 6}
+```{r 7}
 # Modified Fully Implicit Method
 ```
 
-```{r 7, echo = FALSE}
+```{r 8, echo = FALSE}
 # Comparison of results
 # Varying short rates
 
