@@ -1,6 +1,10 @@
 ---
 title: "ZCB Pricing"
-author: "VGV"
+author: 
+- Valentine Chisango
+- George Parekkadavil
+- Vegan Pather
+
 date: "6/22/2018"
 output: html_document
 ---
@@ -9,11 +13,14 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
-print("hello world")
-print("if you are seeing this, then you waited too long to test the repository :(")
-print("Argentina will play Nigeria at the airport!!!")
-print("I guess now Vegan has to stop being lazy and test that his git is working...")
-print("changes have been made")
+```{r 1}
+# Closed form solution to Bond price
+
+bond_price <- function(alpha,beta,sigma,t,T,r){
+  A <- (beta*(1-exp(-beta*(T-t))))/(alpha)
+  B <- (1/beta)*((alpha-(sigma)^2/(2*beta))*(A - T +t) - (sigma^(2)*A^2)/(4))
+  exp(-A*r +B)
+}
+
 ```
 
