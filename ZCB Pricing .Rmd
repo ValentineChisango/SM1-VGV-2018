@@ -24,3 +24,82 @@ bond_price <- function(alpha,beta,sigma,t,T,r){
 
 ```
 
+```{r 2}
+# Monte Carlo Simulation
+
+monte_carlo <- function(alpha, beta, sigma, t, T, r, n, s){
+  # s = number of sub-intervals
+  # n = number of simulation trials  
+  
+  dt <- T/s
+  sim_path <- matrix(NA,nrow = n, ncol = 1) # matrix to store simulated path integrals
+  sim_r <- NULL # vector to store rates on the path
+  
+  
+  for (d in 1:n){
+    sim_r[1] <- r
+    for (j in 2:s){
+      mu <- alpha/beta + exp(-beta*dt)*(sim_r[j-1] -alpha/beta)
+      sd <- sqrt((sigma^2/(2*beta))*(1 -exp(-2*beta*(dt))))
+      sim_r[j] <- rnorm(1,mu,sd)
+    }
+    
+    int <- dt*(sum(sim_r)) # integral of path
+    sim_path[d,1] <- exp(-int) # bond price of path
+    
+  }
+  mean(sim_path) # empirical expectation of bond price using all paths
+}
+
+```
+
+```{r 3}
+# Explicit Method
+```
+
+```{r 4}
+# Implicit Method
+```
+
+```{r 5}
+# Crank-Nicholson Method
+```
+
+```{r 6}
+# Modified Fully Implicit Method
+```
+
+```{r 7, echo = FALSE}
+# Comparison of results
+# Varying short rates
+
+compare_mat <- matrix(NA,nrow = 10, ncol = 8) # matrix of comparison
+
+colnames(compare_mat) <- c("Alpha","Beta","Sigma","Initial rate","Known Price","Monte Carlo"," MC System Time","MC Squared Deviations")
+
+
+a = 0.01
+b = 0.1
+s = 0.04
+t= 0
+T = 1
+
+for (j in 1:10){
+  compare_mat[j,1] <- a
+  compare_mat[j,2] <- b
+  compare_mat[j,3] <- s
+  compare_mat[j,4] <- 0.01 +0.01*(j-1)
+  compare_mat[j,5] <- bond_price(alpha = compare_mat[j,1],beta = compare_mat[j,2], sigma = compare_mat[j,3], t= 0, T = 1, r = compare_mat[j,4])
+  start_time <- proc.time()[1]
+  compare_mat[j,6] <- monte_carlo(alpha = compare_mat[j,1],beta = compare_mat[j,2], sigma = compare_mat[j,3], t= 0, T = 1, r = compare_mat[j,4], n = 1000, s=250)
+  compare_mat[j,7] <- proc.time()[1] -start_time
+  compare_mat[j,8] <- (compare_mat[j,6] -compare_mat[j,5])^2
+}
+
+var <- sum(compare_mat[,8])/9
+
+library(knitr)
+kable(compare_mat,align = "c")
+      
+```
+
