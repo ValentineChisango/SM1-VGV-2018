@@ -1,12 +1,12 @@
 ---
 title: "ZCB Pricing"
-author: 
+author:
 - Valentine Chisango
 - George Parekkadavil
 - Vegan Pather
-
 date: "`r format(Sys.time(), '%d %B %Y')`"
-output: html_document
+output:
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -59,9 +59,43 @@ monte_carlo <- function(alpha, beta, sigma, t, T, r, n, s){
 
 ```
 
-
 ```{r 4}
 # Explicit Method
+
+# Simple Bond price function
+B <- function(t,r){
+  exp(-(T-t)*r)
+}
+
+
+explicit <- function(alpha, beta, sigma, T, r, j, s){
+
+# j = number of sub-intervals for the short rate
+# s = number of sub-intervals for the time interval
+  
+dr = 1/j # lenght of short rate intervals
+dt = T/s # lenght of time intervals
+
+
+p_d <- sigma^2/(2*((dr)^2)) -(alpha -beta*r)/(2*dr)
+p_m <- 1/dt -(sigma^2)/(dr^2)
+p_u <- sigma^2/(2*(dr^2)) +(alpha -beta*r)/(2*dr)
+
+V <- matrix(NA, nrow = j + 1, ncol = s + 1)
+V[,s+1] <- rep(1)
+V[j+1,] <- rep(1)
+for (n in seq(s,0,-1)){
+    for (i in 1:j)
+       if (i == 1)
+         V[i,n] <- ((0.10 +1/dt)^(-1))*(p_d*V[i+1,n+1] +p_m*V[i,n+1] + p_u*V[i+2,n+1]) #Vetzal approx
+       else
+         V[i,n] <- ((0.11 -0.01*i +1/dt)^(-1))*(p_d*V[i+1,n+1] +p_m*V[i,n+1] + p_u*V[i-1,n+1])
+      
+}
+V
+}
+
+
 ```
 
 ```{r 5}
