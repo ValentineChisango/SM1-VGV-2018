@@ -68,7 +68,7 @@ B <- function(t,r){
 }
 
 
-explicit <- function(alpha, beta, sigma, T, r, j, s){
+explicit <- function(alpha=0.01, beta=0.1, sigma=0.04, T=1, r=0.01, j=9, s=11){
 
 # j = number of sub-intervals for the short rate
 # s = number of sub-intervals for the time interval
