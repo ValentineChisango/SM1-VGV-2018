@@ -11,6 +11,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls(all =TRUE))
 ```
 
 ```{r 1}
@@ -67,36 +68,41 @@ B <- function(t,r){
   exp(-(T-t)*r)
 }
 
-alpha = 0.01
-beta = 0.1
-sigma = 0.04
-I = 1:20
-J = seq(0,0.2,0.005)
+explicit <- function(alpha,beta,sigma,r,I,dr){
 
-dt = 1/length(I)
-dr = J[2] -J[1]
+# I = partition of time
+# dr = length of rate sub-intervals
+# r must be in the middle of partition of J
+# length of J must be twice the length of I
+
+J <- seq(0,2*r,dr)    
+
+dt = 1/length(I) # length of each time sub-interval
+dr = J[2] -J[1] # length of each rate sub-interval
 
 
-J[8]
-nr <- length(J)
-nt <- length(I)+1
-V <- matrix(NA, nrow = length(J), ncol = length(I)+1)
+V <- matrix(NA, nrow = length(J), ncol = length(I)+1) # empty matrix
+nr <- length(J) # number of rows of the matrix - represents partition of rate
+nt <- length(I)+1 # number of columns - represents partition of time
 
-V[,length(I)+1] <- rep(1)
+V[,length(I)+1] <- rep(1) # Boundary condition at expiry of bond
 
-count <- 0
-for (i in rev(I)){
-  count <- count+1
-for (j in (1+count):(nr-count)){
-  pu <- sigma^2/(2*dr^2) + (alpha -beta*J[nr-j])/(2*dr)
-  pm <- 1/dt -sigma^2/(dr^2)
-  pd <- sigma^2/(2*(dr^2)) - (alpha -beta*J[nr-j])/(2*dr) 
-  V[j,i] <- (1/(J[nr-j]+1/dt))*(pu*V[j-1,i+1] + pm*V[j,i+1] +pd*V[j+1,i+1])
-}
+count <- 0 # set up count variable
+for (i in rev(I)){ # rev is the reverse order of the time partition
+  count <- count+1 # keeping track of loop
+  for (j in (1+count):(nr-count)){
+    pu <- sigma^2/(2*dr^2) + (alpha -beta*J[nr-j])/(2*dr) # up value
+    pm <- 1/dt -sigma^2/(dr^2) # middle value
+    pd <- sigma^2/(2*(dr^2)) - (alpha -beta*J[nr-j])/(2*dr) # down value
+    V[j,i] <- (1/(J[nr-j]+1/dt))*(pu*V[j-1,i+1] + pm*V[j,i+1] +pd*V[j+1,i+1])
+  }
 
 }
 
 V[(nr+1)/2,1]
+}
+
+explicit(0.01,0.1,0.04,0.10,1:20,0.005)
 
 
 ```
