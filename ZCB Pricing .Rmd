@@ -54,11 +54,177 @@ monte_carlo <- function(alpha, beta, sigma, t, T, r, n, s){
 
 ```
 
+```{r}
+#Generate normal RV
+z=rnorm(1000)
+z.=-z
+
+# Another Version of the MOnte Carlo simulations
+Crude_Monte_Carlo=function(alpha,beta,sigma,T,r0,n,s){
+  
+  # alpha, beta, sigma <- Fixed Parameters
+  # T <- maturity time
+  # r0 <- Initial rate at time 0
+  # n <- Number of Simulations
+  # s <- NUmber of Subintervals 
+  
+  #Simulate interest rates
+  dt <- T/s # Length of sub-intervals
+  sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
+  sim_path[1,]= r0
+  
+  for (i in 1:n){
+    for (j in 2:(s+1)){
+      dr=alpha*(beta-sim_path[j-1,i])*dt+sigma*sqrt(dt)*rnorm(1)# Euler Discretization
+      sim_path[j,i]=sim_path[j-1,i]+dr
+    }
+  }
+  
+  # Monte Carlo Simulations
+  Sum=colSums(sim_path[2:(s+1),]*dt)
+  int=exp(-Sum)
+  mean=mean(int)
+  sd=sd(int)/sqrt(n)
+  result=c(mean,sd)
+  result
+}
+```
+
+
+
+
 ```{r 3}
 # Improvements to the Monte Carlo Simulation
+
+
+#################################################################################
 # Antithetic Variates
+################################################################################
+
+Antithetic_variates= function(alpha,beta,sigma,T,r0,n,s){
+  dt <- T/s # Length of sub-intervals
+  sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
+  sim_path_inv= matrix(0,nrow = s+1, ncol = n)# matrix to generate interest paths using inverse RV
+  sim_path[1,]= r0
+  sim_path_inv[1,]=r0
+ 
+  
+  for (i in 1:n){
+    for (j in 2:(s+1)){
+      dr=alpha*(beta-sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[j-1] # Euler Discretization
+      dr_i= alpha*(beta-sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[j-1]
+      sim_path[j,i]=sim_path[j-1,i]+dr
+      sim_path_inv[j,i]=sim_path_inv[j-1,i]+dr_i
+      
+    }
+  }
+  
+  # Monte Carlo Simulations
+  Sum=colSums(sim_path[2:(s+1),]*dt)
+  Sum.=colSums(sim_path_inv[2:(s+1),]*dt)
+  int.=exp(-Sum.)
+  int=exp(-Sum)# Estimate using the conjugate rates
+  Average=(int+int.)/2 # Average of estimates
+  mean=mean(Average)
+  sd=sd(Average)/sqrt(n)
+  result=c(mean,sd)
+  result
+  
+}
+
+
 
 ```
+
+
+```{r}
+#################################################################################
+# Moment matching
+#################################################################################
+
+Moment_Matching=function(alpha,beta,sigma,T,r0,n,s){
+  
+  # alpha, beta, sigma <- Fixed Parameters
+  # T <- maturity time
+  # r0 <- Initial rate at time 0
+  # n <- Number of Simulations
+  # s <- NUmber of Subintervals 
+  
+  #Simulate interest rates
+  dt <- T/s # Length of sub-intervals
+  sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
+  sim_path[1,]= r0
+  z=rnorm(s)
+  z_m= z-mean(z) # MOMENT MATCHING TRANSFORMATION 
+  
+  for (i in 1:n){
+    for (j in 2:(s+1)){
+      dr=alpha*(beta-sim_path[j-1,i])*dt+sigma*sqrt(dt)*z_m[j-1]# Euler Discretization
+      sim_path[j,i]=sim_path[j-1,i]+dr
+    }
+  }
+  
+  # Monte Carlo Simulations
+  Sum=colSums(sim_path[2:(s+1),]*dt)
+  int=exp(-Sum)
+  mean=mean(int)
+  sd=sd(int)/sqrt(n)
+  result=c(mean,sd)
+  result
+}
+```
+
+```{r}
+#################################################################################
+# Control Variates
+#################################################################################
+
+# We have decided to make use of the CIR model as our control variate process.
+# Below is the closed form solution under the CIR model
+bond_price_CIR <- function(alpha,beta,sigma,t,T,r0){
+  h <- sqrt(alpha^(2)+2*sigma^(2))
+  A <-(2*h*exp((alpha+h)*(T-t)/2)/(2*h+(alpha+h)*(exp((T-t)*(h))-1)))^((2*alpha*beta)/sigma^(2))
+  B <-2*(exp((T-t)*(h))-1)/(2*h+(alpha+h)*(exp((T-t)*(h))-1))
+  A*exp(-B*r0)
+}
+
+
+# Monte Carlo Simulations of Bond Price under the CIR model
+
+CIR_MC= function(alpha,beta,sigma,T,r0,n,s){
+  
+  dt <- T/s # Length of sub-intervals
+  sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
+  sim_path[1,]= r0
+  
+  for (i in 1:n){
+    for (j in 2:(s+1)){
+      dr=alpha*(beta-sim_path[j-1,i])*dt+(sigma*sqrt(dt)*rnorm(1)*sqrt(sim_path[j-1,i]))# Euler Discretization
+      sim_path[j,i]=sim_path[j-1,i]+dr
+    
+    }
+  }
+  
+  # Monte Carlo Simulations
+  Sum=colSums(sim_path[2:(s+1),]*dt)
+  int=exp(-Sum)
+  mean=mean(int)
+  sd=sd(int)/sqrt(n)
+  result=c(mean,sd)
+  result
+  
+}
+
+# Therefore the control variates estimate:
+
+Control_Variates_estimate= function(alpha, beta, sigma,t,T,r0,n,s){
+  Crude_Monte_Carlo(alpha,beta,sigma,T,r0,n,s)[1]- CIR_MC(alpha,beta,sigma,T,r0,n,s)[1]+bond_price_CIR(alpha,beta,sigma,t,T,r0)
+}
+  
+
+```
+
+
 
 ```{r 4}
 # Explicit Method
