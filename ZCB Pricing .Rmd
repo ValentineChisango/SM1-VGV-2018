@@ -68,18 +68,18 @@ B <- function(t,r){
   exp(-(T-t)*r)
 }
 
-explicit <- function(alpha,beta,sigma,r,I,dr){
+explicit <- function(alpha,beta,sigma,r,I){
 
 # I = partition of time
+# J = partition of rate
 # dr = length of rate sub-intervals
 # r must be in the middle of partition of J
 # length of J must be twice the length of I
-
+dr <- 2*r/(2*length(I))
+  
 J <- seq(0,2*r,dr)    
 
 dt = 1/length(I) # length of each time sub-interval
-dr = J[2] -J[1] # length of each rate sub-interval
-
 
 V <- matrix(NA, nrow = length(J), ncol = length(I)+1) # empty matrix
 nr <- length(J) # number of rows of the matrix - represents partition of rate
@@ -102,13 +102,15 @@ for (i in rev(I)){ # rev is the reverse order of the time partition
 V[(nr+1)/2,1]
 }
 
-explicit(0.01,0.1,0.04,0.10,1:20,0.005)
+explicit(0.01,0.1,0.04,0.05,1:10)
 
 
 ```
 
 ```{r 5}
 # Implicit Method
+
+
 ```
 
 ```{r 6}
