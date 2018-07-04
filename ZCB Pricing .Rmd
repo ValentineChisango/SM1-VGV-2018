@@ -275,6 +275,70 @@ explicit(0.01,0.1,0.04,0.05,1:10)
 
 ```{r 5}
 # Implicit Method
+# Implicit Method
+
+implicit <- function(alpha,beta,sigma,r,I,J){
+  # I = partition of time interval
+  # J = partition of short rate variable
+  
+  nr <- length(J) # number of rows based on rate grid points
+  nc <- length(I) # number of columns based on number of time grid points
+  
+  dr <- J[2] - J[1] #length of each sub-interval across J
+  dt <- 1/length(I) #length of each sub-interval across I
+  
+  
+  # For each j in J we define the following functions at a fixed time point
+  
+  pd <- function(j){
+    dt*((alpha-beta*J[j+1])/(2*dr) - (sigma^2)/(2*dr^2))
+    
+  }
+  
+  pm <- function(j){
+    dt*(J[j+1] + 1/dt)
+  }
+  
+  pu <- function(j){
+    -dt*((alpha-beta*J[j+1])/(2*dr) + (sigma^2)/(2*dr^2))
+    
+  }
+  
+  # Setting up tridiagonal matrix
+  Diag <- matrix(0,nrow = nr-1,ncol = nr-1)
+  
+  # Filling main diagonal
+  for (j in 1:(nr-1)){
+    Diag[j,j] <- pm(j)
+    
+  }
+  
+  # Filling lower diagonal
+  for (j in 2:(nr-1)){
+    Diag[j,j-1] <- pd(j)
+  }
+  
+  # Filling upper diagonal
+  for (j in 1:(nr-2)){
+    Diag[j,j+1] <- pu(j)
+  }
+  
+  
+  B <- matrix(1,ncol = 1,nrow = nr-1) # The matrix of bond prices at maturity time 
+  
+  for (i in I){
+    C <- matrix(0,ncol = 1, nrow = nr-1) # Another matrix for boundary conditions
+    C[nr-1,1] <- (-pu(nr-1))*B[nr-1,1]
+    C[1,1] <- -pd(1)
+    A <- B + C # Working backwards recursively 
+    B <- solve(Diag)%*%A 
+  }
+  
+  B # Output of bond prices at time 0 for varying rates
+  
+}
+
+R <- implicit(0.08,0.8,0.005,0.05,1:50,seq(0,0.1,0.01))
 
 
 ```
