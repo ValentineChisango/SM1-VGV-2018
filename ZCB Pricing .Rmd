@@ -254,9 +254,9 @@ nt <- length(I)+1 # number of columns - represents partition of time
 V[,length(I)+1] <- rep(1) # Boundary condition at expiry of bond
 
 count <- 0 # set up count variable
-for (i in rev(I)){ # rev is the reverse order of the time partition
+for (i in rev(I)){ # rev is the reverse order of the time partition | i corresponds to the columns of the lattice
   count <- count+1 # keeping track of loop
-  for (j in (1+count):(nr-count)){
+  for (j in (1+count):(nr-count)){ # j corresponds to the rows of the lattice
     pu <- sigma^2/(2*dr^2) + (alpha -beta*J[nr-j])/(2*dr) # up value
     pm <- 1/dt -sigma^2/(dr^2) # middle value
     pd <- sigma^2/(2*(dr^2)) - (alpha -beta*J[nr-j])/(2*dr) # down value
@@ -268,7 +268,7 @@ for (i in rev(I)){ # rev is the reverse order of the time partition
 V[(nr+1)/2,1]
 }
 
-explicit(0.01,0.1,0.04,0.05,1:10)
+explicit(0.08,0.8,0.005,0.05,1:10)
 
 
 ```
