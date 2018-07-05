@@ -230,7 +230,7 @@ Control_Variates_estimate= function(alpha, beta, sigma,t,T,r0,n,s){
 # Explicit Method
 
 # Simple Bond price function
-B <- function(t,r){
+B <- function(t,T,r){
   exp(-(T-t)*r)
 }
 
@@ -345,6 +345,105 @@ R <- implicit(0.08,0.8,0.005,0.05,1:50,seq(0,0.1,0.01))
 
 ```{r 6}
 # Crank-Nicholson Method
+
+CN <- function(alpha, beta, sigma, r, I, J){
+  # I = partition of time interval
+  # J = partition of short rate interval
+  
+  X <- length(I) # number of time grid points
+  Y <- length(J) # number of rate grid points
+  
+  nr <- Y - 1 # number of rows
+  
+  dr <- J[2] - J[1]
+  dt <- 1/X
+  
+  #===========================================================================================
+  # Define the following functions for j = 1,...,nr at each time point i
+  
+  pd <- function(j){
+    (alpha -beta*J[j+1])/(2*dr) - sigma^2/(4*dr^2)
+  }
+  
+  pm_1 <- function(j){
+    J[j+1]/2 + 1/dt + sigma^2/(2*dr^2)
+  }
+  
+  pm_2 <- function(j){
+    -J[j+1]/2 + 1/dt - sigma^2/(2*dr^2)
+  }
+  
+  pu <- function(j){
+    - (alpha -beta*J[j+1])/(2*dr) - sigma^2/(4*dr^2)
+  }
+  
+  #===========================================================================================
+  # Define 2 tridiagonal matricies. One for time point i and one for time point i+1
+  
+  Diag_1 <- matrix(0,nrow = nr,ncol = nr)
+  Diag_2 <- matrix(0,nrow = nr,ncol = nr)
+  
+  # Main diagonal of matrix 1
+  for (j in 1:nr){
+    Diag_1[j,j] <- pm_1(j)
+    
+  }
+  
+  # Filling lower diagonal of matrix 1
+  for (j in 2:nr){
+    Diag_1[j,j-1] <- pd(j)
+  }
+  
+  # Filling upper diagonal of matirx 1
+  for (j in 1:(nr-1)){
+    Diag_1[j,j+1] <- pu(j)
+  }  
+  
+  # Main diagonal of matrix 2
+  for (j in 1:nr){
+    Diag_2[j,j] <- pm_2(j)
+    
+  }
+  
+  # Filling lower diagonal of matrix 2
+  for (j in 2:nr){
+    Diag_2[j,j-1] <- -pd(j)
+  }
+  
+  # Filling upper diagonal of matirx 2
+  for (j in 1:(nr-1)){
+    Diag_2[j,j+1] <- -pu(j)
+  }
+  
+  
+  #===========================================================================================
+  # Constructing more matricies and iterating the procedure from maturity to time 0
+  # These matricies take care of the boundary conditions
+  C_1 <- matrix(0,nrow = nr,ncol = 1)
+  C_1[1,1] <- pd(1)
+  C_1[nr,1] <- pu(nr)
+  
+  C_2 <- matrix(0,nrow = nr,ncol = 1)
+  C_2[1,1] <- -pd(1)
+  C_2[nr,1] <- -pu(nr)
+  
+  # Vector of bond price values at time i
+  Bond_values <- matrix(1,nrow = nr, ncol = 1)
+  
+  for (i in I){
+    Inv <- solve(Diag_1)
+    RHS <- Diag_2%*%Bond_values + C_2 - C_1
+    Bond_values <- Inv%*%RHS
+  }
+
+  Bond_values
+  
+}
+
+
+G <- CN(0.08,0.8,0.005,0.05,I=1:1000, J = seq(0,0.10,0.01))
+
+
 ```
 
 ```{r 7}
