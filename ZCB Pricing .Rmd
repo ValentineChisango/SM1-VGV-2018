@@ -18,7 +18,7 @@ rm(list = ls(all =TRUE))
 # Closed form solution to Bond price
 
 bond_price <- function(alpha,beta,sigma,t,T,r){
-  A <- (beta*(1-exp(-beta*(T-t))))/(alpha)
+  A <- (1-exp(-beta*(T-t)))/(beta)
   B <- (1/beta)*((alpha-(sigma)^2/(2*beta))*(A - T +t) - (sigma^(2)*A^2)/(4))
   exp(-A*r +B)
 }
@@ -441,9 +441,18 @@ CN <- function(alpha, beta, sigma, r, I, J){
 }
 
 
-G <- CN(0.08,0.8,0.005,0.05,I=1:1000, J = seq(0,0.10,0.01))
+G <- CN(0.08,0.8,0.005,0.05,I=1:100, J = seq(-0.3,0.5,0.01))
 
-
+#============================================================================================
+# Doing some plots
+plot(G)
+xvec <- seq(-0.3,0.5,0.01)
+S <- NULL
+for (r in 1:length(xvec)){
+  S[r] <- bond_price(0.08,0.8,0.005,0,1,xvec[r])
+}
+plot(G, x = xvec[1:length(xvec)-1],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Crank - Nicolson vs Known Solution")
+lines(xvec,S, col ="blue", lty =1.5)
 ```
 
 ```{r 7}
