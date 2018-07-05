@@ -274,7 +274,7 @@ explicit(0.08,0.8,0.005,0.05,1:10)
 ```
 
 ```{r 5}
-# Implicit Method
+
 # Implicit Method
 
 implicit <- function(alpha,beta,sigma,r,I,J){
@@ -296,7 +296,7 @@ implicit <- function(alpha,beta,sigma,r,I,J){
   }
   
   pm <- function(j){
-    dt*(J[j+1] + 1/dt)
+    dt*(J[j+1] + 1/dt +sigma^2/(dr^2))
   }
   
   pu <- function(j){
