@@ -338,9 +338,18 @@ implicit <- function(alpha,beta,sigma,r,I,J){
   
 }
 
-R <- implicit(0.08,0.8,0.005,0.05,1:50,seq(0,0.1,0.01))
+R <- implicit(0.08,0.8,0.005,0.05,1:100,seq(-0.3,0.5,0.01))
 
+#============================================================================================
+# Doing some plots
 
+xvec <- seq(-0.3,0.5,0.01)
+S <- NULL
+for (r in 1:length(xvec)){
+  S[r] <- bond_price(0.08,0.8,0.005,0,1,xvec[r])
+  }
+plot(R, x = xvec[1:length(xvec)-1],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Implicit Method vs Known Solution")
+lines(xvec,S, col ="blue", lty =1.5)
 ```
 
 ```{r 6}
@@ -441,11 +450,11 @@ CN <- function(alpha, beta, sigma, r, I, J){
 }
 
 
-G <- CN(0.08,0.8,0.005,0.05,I=1:100, J = seq(-0.3,0.5,0.01))
+G <- CN(0.08,0.8,0.005,0.05, I=1:100, J = seq(-0.3,0.5,0.01))
 
 #============================================================================================
 # Doing some plots
-plot(G)
+
 xvec <- seq(-0.3,0.5,0.01)
 S <- NULL
 for (r in 1:length(xvec)){
