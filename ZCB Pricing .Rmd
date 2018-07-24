@@ -17,7 +17,7 @@ rm(list = ls(all =TRUE))
 ```{r 1}
 # Closed form solution to Bond price
 
-bond_price <- function(alpha,beta,sigma,t,T,r){
+bond_price <- function(alpha=0.08,beta=0.8,sigma=0.005,t=0,T=1,r=0.08){
   A <- (1-exp(-beta*(T-t)))/(beta)
   B <- (1/beta)*((alpha-(sigma)^2/(2*beta))*(A - T +t) - (sigma^(2)*A^2)/(4))
   exp(-A*r +B)
@@ -28,7 +28,7 @@ bond_price <- function(alpha,beta,sigma,t,T,r){
 ```{r 2}
 # Monte Carlo Simulation
 
-monte_carlo <- function(alpha, beta, sigma, t, T, r, n, s){
+monte_carlo <- function(alpha =0.08, beta=0.8, sigma=0.005, t=0, T=1, r=0.08, n=1000, s=100){
   # s = number of sub-intervals
   # n = number of simulation trials  
   
@@ -55,12 +55,9 @@ monte_carlo <- function(alpha, beta, sigma, t, T, r, n, s){
 ```
 
 ```{r}
-#Generate normal RV
-z=rnorm(1000)
-z.=-z
 
 # Another Version of the MOnte Carlo simulations
-Crude_Monte_Carlo=function(alpha,beta,sigma,T,r0,n,s){
+Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1000,s=100){
   
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
@@ -75,7 +72,7 @@ Crude_Monte_Carlo=function(alpha,beta,sigma,T,r0,n,s){
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=alpha*(beta-sim_path[j-1,i])*dt+sigma*sqrt(dt)*rnorm(1)# Euler Discretization
+      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*rnorm(1)# Euler Discretization
       sim_path[j,i]=sim_path[j-1,i]+dr
     }
   }
@@ -85,9 +82,11 @@ Crude_Monte_Carlo=function(alpha,beta,sigma,T,r0,n,s){
   int=exp(-Sum)
   mean=mean(int)
   sd=sd(int)/sqrt(n)
-  result=c(mean,sd)
+  result=mean
   result
 }
+
+
 ```
 
 
@@ -101,18 +100,19 @@ Crude_Monte_Carlo=function(alpha,beta,sigma,T,r0,n,s){
 # Antithetic Variates
 ################################################################################
 
-Antithetic_variates= function(alpha,beta,sigma,T,r0,n,s){
+Antithetic_variates= function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1000,s=100){
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path_inv= matrix(0,nrow = s+1, ncol = n)# matrix to generate interest paths using inverse RV
   sim_path[1,]= r0
   sim_path_inv[1,]=r0
- 
+  z = rnorm(n)
+  z. = -z
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=alpha*(beta-sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i] # Euler Discretization
-      dr_i= alpha*(beta-sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[i]
+      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i] # Euler Discretization
+      dr_i= (alpha-beta*sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[i]
       sim_path[j,i]=sim_path[j-1,i]+dr
       sim_path_inv[j,i]=sim_path_inv[j-1,i]+dr_i
       
@@ -127,7 +127,7 @@ Antithetic_variates= function(alpha,beta,sigma,T,r0,n,s){
   Average=(int+int.)/2 # Average of estimates
   mean=mean(Average)
   sd=sd(Average)/sqrt(n)
-  result=c(mean,sd)
+  result= mean
   result
   
 }
@@ -142,7 +142,7 @@ Antithetic_variates= function(alpha,beta,sigma,T,r0,n,s){
 # Moment matching
 #################################################################################
 
-Moment_Matching=function(alpha,beta,sigma,T,r0,n,s){
+Moment_Matching=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1000,s=100){
   
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
@@ -154,12 +154,12 @@ Moment_Matching=function(alpha,beta,sigma,T,r0,n,s){
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r0
-  z=rnorm(s)
+  z=rnorm(n)
   z_m= z-mean(z) # MOMENT MATCHING TRANSFORMATION 
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=alpha*(beta-sim_path[j-1,i])*dt+sigma*sqrt(dt)*z_m[i]# Euler Discretization
+      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z_m[i]# Euler Discretization
       sim_path[j,i]=sim_path[j-1,i]+dr
     }
   }
@@ -169,9 +169,10 @@ Moment_Matching=function(alpha,beta,sigma,T,r0,n,s){
   int=exp(-Sum)
   mean=mean(int)
   sd=sd(int)/sqrt(n)
-  result=c(mean,sd)
+  result=mean
   result
 }
+
 ```
 
 ```{r}
@@ -225,6 +226,42 @@ Control_Variates_estimate= function(alpha, beta, sigma,t,T,r0,n,s){
 ```
 
 
+```{r}
+
+#============================================================================================
+# Doing some plots
+
+xvec <- seq(-0.3,0.5,0.01)
+S <- NULL
+for (r in 1:length(xvec)){
+  S[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
+}
+
+CR <- NULL
+AV <- NULL
+MM <- NULL
+
+for (k in 1: length(xvec)){
+  CR[k] <- Crude_Monte_Carlo(r0 = xvec[k], T=5)
+}
+
+for (s in 1: length(xvec)){
+  AV[s] <- Antithetic_variates(r0 = xvec[s], T =5)
+  
+}
+
+for (j in 1: length(xvec)){
+  MM[j] <- Moment_Matching(r0 = xvec[j], T =5)
+  
+}
+
+plot(CR, x = xvec[1:length(xvec)],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Monte Carlo vs Known Solution")
+lines(xvec,S, col ="blue", lty =1.5)
+lines(xvec,AV, col ="black", lty =1.5)
+lines(xvec,MM, col ="yellow", lty =1.5)
+```
+
+
 
 ```{r 4}
 # Explicit Method
@@ -234,7 +271,7 @@ B <- function(t,T,r){
   exp(-(T-t)*r)
 }
 
-explicit <- function(alpha,beta,sigma,r,I,T){
+explicit <- function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:100,T=2){
 
 # I = partition of time
 # J = partition of rate
@@ -269,8 +306,22 @@ V[(nr+1)/2,1]
 
 }
 
-X = explicit(0.08,0.8,0.005,0.03,1:50,T=1)
-Z <- bond_price(0.08,0.8,0.005,0,1,0.03)
+
+#============================================================================================
+#Doing some plots
+# 
+# xvec <- seq(-0.3,0.5,0.01)
+# H <- NULL
+# for (r in 1:length(xvec)){
+#   S[r] <- bond_price(0.08,0.8,0.005,0,1,xvec[r])
+# }
+# 
+# for (i in 1:length(xvec)){
+#   H[i] <- explicit(r = xvec[i], I= 1:50, T=5)
+# }
+# 
+# plot(H, x = xvec,xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Crank - Nicolson vs Known Solution")
+# lines(xvec,S, col ="blue", lty =1.5)
 
 ```
 
@@ -278,7 +329,7 @@ Z <- bond_price(0.08,0.8,0.005,0,1,0.03)
 
 # Implicit Method
 
-implicit <- function(alpha,beta,sigma,r,I,J,T){
+implicit <- function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:100, J =seq(0,0.10,0.01),T=1){
   # I = partition of time interval
   # J = partition of short rate variable
   
@@ -339,18 +390,22 @@ implicit <- function(alpha,beta,sigma,r,I,J,T){
   
 }
 
-R <- implicit(0.08,0.8,0.005,0.05,1:100,seq(-0.3,0.5,0.01),T=5)
 
 #============================================================================================
+
 # Doing some plots
 
-xvec <- seq(-0.3,0.5,0.01)
+xvec <- seq(-0.3,0.6,0.01)
+R <- implicit(T=5,J= xvec, I = 1:1250)
 S <- NULL
 for (r in 1:length(xvec)){
   S[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
   }
 plot(R, x = xvec[1:length(xvec)-1],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Implicit Method vs Known Solution")
 lines(xvec,S, col ="blue", lty =1.5)
+
+
+
 ```
 
 ```{r 6}
@@ -464,6 +519,27 @@ for (r in 1:length(xvec)){
 plot(G, x = xvec[1:length(xvec)-1],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Crank - Nicolson vs Known Solution")
 lines(xvec,S, col ="blue", lty =1.5)
 ```
+
+```{r}
+# Crank Nicolson 2.0
+
+CN_2 <- function(alpha = 0.08,beta =0.8,sigma=0.005,T=5,r =0.05,I = 1:1250, J = seq(-0.3,0.5,0.01)){
+  
+  M <- length(J)
+  
+  
+  
+  
+  
+}
+
+
+
+
+```
+
+
+
 
 ```{r 7}
 # Modified Fully Implicit Method
