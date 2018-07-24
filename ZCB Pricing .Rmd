@@ -234,7 +234,7 @@ B <- function(t,T,r){
   exp(-(T-t)*r)
 }
 
-explicit <- function(alpha,beta,sigma,r,I){
+explicit <- function(alpha,beta,sigma,r,I,T){
 
 # I = partition of time
 # J = partition of rate
@@ -245,7 +245,7 @@ dr <- 2*r/(2*length(I))
   
 J <- seq(0,2*r,dr)    
 
-dt = 1/length(I) # length of each time sub-interval
+dt = T/length(I) # length of each time sub-interval
 
 V <- matrix(NA, nrow = length(J), ncol = length(I)+1) # empty matrix
 nr <- length(J) # number of rows of the matrix - represents partition of rate
@@ -257,19 +257,20 @@ count <- 0 # set up count variable
 for (i in rev(I)){ # rev is the reverse order of the time partition | i corresponds to the columns of the lattice
   count <- count+1 # keeping track of loop
   for (j in (1+count):(nr-count)){ # j corresponds to the rows of the lattice
-    pu <- sigma^2/(2*dr^2) + (alpha -beta*J[nr-j])/(2*dr) # up value
-    pm <- 1/dt -sigma^2/(dr^2) # middle value
-    pd <- sigma^2/(2*(dr^2)) - (alpha -beta*J[nr-j])/(2*dr) # down value
-    V[j,i] <- (1/(J[nr-j]+1/dt))*(pu*V[j-1,i+1] + pm*V[j,i+1] +pd*V[j+1,i+1])
+    pu <- dt*(sigma^2/(2*dr^2) + (alpha -beta*J[nr-j])/(2*dr)) # up value
+    pm <- 1 - (sigma^2*dt)/(dr^2) # middle value
+    pd <- dt*(sigma^2/(2*(dr^2)) - (alpha -beta*J[nr-j])/(2*dr)) # down value
+    V[j,i] <- ((1+J[nr-j]*dt)^(-1))*(pu*V[j-1,i+1] + pm*V[j,i+1] +pd*V[j+1,i+1])
   }
 
 }
 
 V[(nr+1)/2,1]
+
 }
 
-explicit(0.08,0.8,0.005,0.05,1:10)
-
+X = explicit(0.08,0.8,0.005,0.03,1:50,T=1)
+Z <- bond_price(0.08,0.8,0.005,0,1,0.03)
 
 ```
 
@@ -277,7 +278,7 @@ explicit(0.08,0.8,0.005,0.05,1:10)
 
 # Implicit Method
 
-implicit <- function(alpha,beta,sigma,r,I,J){
+implicit <- function(alpha,beta,sigma,r,I,J,T){
   # I = partition of time interval
   # J = partition of short rate variable
   
@@ -285,7 +286,7 @@ implicit <- function(alpha,beta,sigma,r,I,J){
   nc <- length(I) # number of columns based on number of time grid points
   
   dr <- J[2] - J[1] #length of each sub-interval across J
-  dt <- 1/length(I) #length of each sub-interval across I
+  dt <- T/length(I) #length of each sub-interval across I
   
   
   # For each j in J we define the following functions at a fixed time point
@@ -338,7 +339,7 @@ implicit <- function(alpha,beta,sigma,r,I,J){
   
 }
 
-R <- implicit(0.08,0.8,0.005,0.05,1:100,seq(-0.3,0.5,0.01))
+R <- implicit(0.08,0.8,0.005,0.05,1:100,seq(-0.3,0.5,0.01),T=5)
 
 #============================================================================================
 # Doing some plots
@@ -346,7 +347,7 @@ R <- implicit(0.08,0.8,0.005,0.05,1:100,seq(-0.3,0.5,0.01))
 xvec <- seq(-0.3,0.5,0.01)
 S <- NULL
 for (r in 1:length(xvec)){
-  S[r] <- bond_price(0.08,0.8,0.005,0,1,xvec[r])
+  S[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
   }
 plot(R, x = xvec[1:length(xvec)-1],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Implicit Method vs Known Solution")
 lines(xvec,S, col ="blue", lty =1.5)
@@ -355,7 +356,7 @@ lines(xvec,S, col ="blue", lty =1.5)
 ```{r 6}
 # Crank-Nicholson Method
 
-CN <- function(alpha, beta, sigma, r, I, J){
+CN <- function(alpha, beta, sigma, r,T, I, J){
   # I = partition of time interval
   # J = partition of short rate interval
   
@@ -365,7 +366,7 @@ CN <- function(alpha, beta, sigma, r, I, J){
   nr <- Y - 1 # number of rows
   
   dr <- J[2] - J[1]
-  dt <- 1/X
+  dt <- T/X
   
   #===========================================================================================
   # Define the following functions for j = 1,...,nr at each time point i
@@ -450,7 +451,7 @@ CN <- function(alpha, beta, sigma, r, I, J){
 }
 
 
-G <- CN(0.08,0.8,0.005,0.05, I=1:100, J = seq(-0.3,0.5,0.01))
+G <- CN(0.08,0.8,0.005,0.05, T=5, I=1:365, J = seq(-0.3,0.5,0.01))
 
 #============================================================================================
 # Doing some plots
