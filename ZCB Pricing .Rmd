@@ -111,8 +111,8 @@ Antithetic_variates= function(alpha,beta,sigma,T,r0,n,s){
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=alpha*(beta-sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[j-1] # Euler Discretization
-      dr_i= alpha*(beta-sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[j-1]
+      dr=alpha*(beta-sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i] # Euler Discretization
+      dr_i= alpha*(beta-sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[i]
       sim_path[j,i]=sim_path[j-1,i]+dr
       sim_path_inv[j,i]=sim_path_inv[j-1,i]+dr_i
       
@@ -159,7 +159,7 @@ Moment_Matching=function(alpha,beta,sigma,T,r0,n,s){
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=alpha*(beta-sim_path[j-1,i])*dt+sigma*sqrt(dt)*z_m[j-1]# Euler Discretization
+      dr=alpha*(beta-sim_path[j-1,i])*dt+sigma*sqrt(dt)*z_m[i]# Euler Discretization
       sim_path[j,i]=sim_path[j-1,i]+dr
     }
   }
