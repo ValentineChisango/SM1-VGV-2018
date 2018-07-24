@@ -411,93 +411,90 @@ lines(xvec,S, col ="blue", lty =1.5)
 ```{r 6}
 # Crank-Nicholson Method
 
-CN <- function(alpha, beta, sigma, r,T, I, J){
+CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1250==, J = seq(-0.3,0.5,0.01)){
   # I = partition of time interval
   # J = partition of short rate interval
   
-  X <- length(I) # number of time grid points
-  Y <- length(J) # number of rate grid points
+  M <- length(J)
+  N <- length(I)
   
-  nr <- Y - 1 # number of rows
-  
-  dr <- J[2] - J[1]
-  dt <- T/X
-  
+  dt <- T/N
+  dr <- J[2] -J[1]
   #===========================================================================================
-  # Define the following functions for j = 1,...,nr at each time point i
+  # Define the following functions for j = 1,...,M at each time point i
+  
   
   pd <- function(j){
-    (alpha -beta*J[j+1])/(2*dr) - sigma^2/(4*dr^2)
+    (alpha -beta*J[j])/(4*dr) - sigma^2/(4*(dr^2))
   }
   
-  pm_1 <- function(j){
-    J[j+1]/2 + 1/dt + sigma^2/(2*dr^2)
-  }
-  
-  pm_2 <- function(j){
-    -J[j+1]/2 + 1/dt - sigma^2/(2*dr^2)
+  pm <- function(j){
+    sigma^2/(2*(dr^2)) + J[j]/2
   }
   
   pu <- function(j){
-    - (alpha -beta*J[j+1])/(2*dr) - sigma^2/(4*dr^2)
+    -(alpha -beta*J[j])/(4*dr) - sigma^2/(4*(dr^2)) 
   }
+  
+  
   
   #===========================================================================================
   # Define 2 tridiagonal matricies. One for time point i and one for time point i+1
   
-  Diag_1 <- matrix(0,nrow = nr,ncol = nr)
-  Diag_2 <- matrix(0,nrow = nr,ncol = nr)
+  Diag_1 <- matrix(0,nrow = M,ncol = M)
+  Diag_2 <- matrix(0,nrow = M,ncol = M)
   
   # Main diagonal of matrix 1
-  for (j in 1:nr){
-    Diag_1[j,j] <- pm_1(j)
+  for (j in 1:M){
+    Diag_1[j,j] <- -1/dt - pm(j)
     
   }
   
   # Filling lower diagonal of matrix 1
-  for (j in 2:nr){
-    Diag_1[j,j-1] <- pd(j)
+  for (j in 2:M){
+    Diag_1[j,j-1] <- -pd(j)
   }
   
   # Filling upper diagonal of matirx 1
-  for (j in 1:(nr-1)){
-    Diag_1[j,j+1] <- pu(j)
+  for (j in 1:M-1){
+    Diag_1[j,j+1] <- -pu(j)
   }  
   
   # Main diagonal of matrix 2
-  for (j in 1:nr){
-    Diag_2[j,j] <- pm_2(j)
+  for (j in 1:M){
+    Diag_2[j,j] <- -1/dt + pm(j)
     
   }
   
   # Filling lower diagonal of matrix 2
-  for (j in 2:nr){
-    Diag_2[j,j-1] <- -pd(j)
+  for (j in 2:M){
+    Diag_2[j,j-1] <- pd(j)
   }
   
   # Filling upper diagonal of matirx 2
-  for (j in 1:(nr-1)){
-    Diag_2[j,j+1] <- -pu(j)
+  for (j in 1:M-1){
+    Diag_2[j,j+1] <- pu(j)
   }
   
   
   #===========================================================================================
   # Constructing more matricies and iterating the procedure from maturity to time 0
-  # These matricies take care of the boundary conditions
-  C_1 <- matrix(0,nrow = nr,ncol = 1)
-  C_1[1,1] <- pd(1)
-  C_1[nr,1] <- pu(nr)
+
+  Bond_values <- matrix(1,nrow = M, ncol = 1)
   
-  C_2 <- matrix(0,nrow = nr,ncol = 1)
-  C_2[1,1] <- -pd(1)
-  C_2[nr,1] <- -pu(nr)
+  # C_1 <- matrix(0,nrow = M,ncol = 1)
+  # C_1[1,1] <- -pd(1)
+  # C_1[M,1] <- -pu(M)
+  # 
+  # C_2 <- matrix(0,nrow = M,ncol = 1)
+  # C_2[1,1] <- pd(1)
+  # C_2[M,1] <- pu(M)
   
-  # Vector of bond price values at time i
-  Bond_values <- matrix(1,nrow = nr, ncol = 1)
+
   
-  for (i in I){
+  for (i in 1:(length(I)+1)){
     Inv <- solve(Diag_1)
-    RHS <- Diag_2%*%Bond_values + C_2 - C_1
+    RHS <- Diag_2%*%Bond_values 
     Bond_values <- Inv%*%RHS
   }
 
@@ -506,7 +503,7 @@ CN <- function(alpha, beta, sigma, r,T, I, J){
 }
 
 
-G <- CN(0.08,0.8,0.005,0.05, T=5, I=1:365, J = seq(-0.3,0.5,0.01))
+
 
 #============================================================================================
 # Doing some plots
@@ -514,31 +511,11 @@ G <- CN(0.08,0.8,0.005,0.05, T=5, I=1:365, J = seq(-0.3,0.5,0.01))
 xvec <- seq(-0.3,0.5,0.01)
 S <- NULL
 for (r in 1:length(xvec)){
-  S[r] <- bond_price(0.08,0.8,0.005,0,1,xvec[r])
+  S[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
 }
-plot(G, x = xvec[1:length(xvec)-1],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Crank - Nicolson vs Known Solution")
+plot(CN(), x = xvec[1:length(xvec)],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Crank - Nicolson vs Known Solution")
 lines(xvec,S, col ="blue", lty =1.5)
 ```
-
-```{r}
-# Crank Nicolson 2.0
-
-CN_2 <- function(alpha = 0.08,beta =0.8,sigma=0.005,T=5,r =0.05,I = 1:1250, J = seq(-0.3,0.5,0.01)){
-  
-  M <- length(J)
-  
-  
-  
-  
-  
-}
-
-
-
-
-```
-
-
 
 
 ```{r 7}
