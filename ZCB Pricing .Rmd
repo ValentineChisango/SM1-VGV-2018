@@ -483,17 +483,18 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1
   Bond_values <- matrix(1,nrow = M, ncol = 1)
   
   # C_1 <- matrix(0,nrow = M,ncol = 1)
-  # C_1[1,1] <- -pd(1)
-  # C_1[M,1] <- -pu(M)
+  # C_1[1,1] <- -2*pd(1)
+  # C_1[M,1] <- -2*pu(M)
   # 
   # C_2 <- matrix(0,nrow = M,ncol = 1)
   # C_2[1,1] <- pd(1)
   # C_2[M,1] <- pu(M)
+  Inv <- solve(Diag_1)
   
 
   
-  for (i in 1:(length(I)+1)){
-    Inv <- solve(Diag_1)
+  for (i in 1:(length(I))){
+    
     RHS <- Diag_2%*%Bond_values 
     Bond_values <- Inv%*%RHS
   }
@@ -526,27 +527,25 @@ lines(xvec,S, col ="blue", lty =1.5)
 # Comparison of results
 # Varying short rates
 
-compare_mat <- matrix(NA,nrow = 10, ncol = 8) # matrix of comparison
+compare_mat <- matrix(NA,nrow = 10, ncol = 10) # matrix of comparison
 
-colnames(compare_mat) <- c("Alpha","Beta","Sigma","Initial rate","Known Price","Monte Carlo"," MC System Time","MC Squared Deviations")
+colnames(compare_mat) <- c("Alpha","Beta","Sigma","Initial rate","Known Price","Monte Carlo"," MC System Time","MC Squared Deviations", "Moment Matching", "System Time")
 
-
-a = 0.01
-b = 0.1
-s = 0.04
-t= 0
-T = 1
 
 for (j in 1:10){
-  compare_mat[j,1] <- a
-  compare_mat[j,2] <- b
-  compare_mat[j,3] <- s
+  compare_mat[j,1] <- 0.08
+  compare_mat[j,2] <- 0.8
+  compare_mat[j,3] <- 0.005
   compare_mat[j,4] <- 0.01 +0.01*(j-1)
   compare_mat[j,5] <- bond_price(alpha = compare_mat[j,1],beta = compare_mat[j,2], sigma = compare_mat[j,3], t= 0, T = 1, r = compare_mat[j,4])
   start_time <- proc.time()[1]
-  compare_mat[j,6] <- monte_carlo(alpha = compare_mat[j,1],beta = compare_mat[j,2], sigma = compare_mat[j,3], t= 0, T = 1, r = compare_mat[j,4], n = 1000, s=250)
+  compare_mat[j,6] <- Crude_Monte_Carlo(alpha = compare_mat[j,1],beta = compare_mat[j,2], sigma = compare_mat[j,3], T = 1, r0 = compare_mat[j,4], n = 1000, s=250)
   compare_mat[j,7] <- proc.time()[1] -start_time
   compare_mat[j,8] <- (compare_mat[j,6] -compare_mat[j,5])^2
+  start_time <- proc.time()[1]
+  compare_mat[j,9] <- Moment_Matching(alpha = compare_mat[j,1],beta = compare_mat[j,2], sigma = compare_mat[j,3], T = 1, r0 = compare_mat[j,4], n = 1000, s=250)
+  compare_mat[j,10] <- proc.time()[1] - start_time
+  
 }
 
 var <- sum(compare_mat[,8])/9
