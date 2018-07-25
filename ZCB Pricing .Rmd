@@ -26,37 +26,9 @@ bond_price <- function(alpha=0.08,beta=0.8,sigma=0.005,t=0,T=1,r=0.08){
 ```
 
 ```{r 2}
-# Monte Carlo Simulation
-
-monte_carlo <- function(alpha =0.08, beta=0.8, sigma=0.005, t=0, T=1, r=0.08, n=1000, s=100){
-  # s = number of sub-intervals
-  # n = number of simulation trials  
-  
-  dt <- T/s
-  sim_path <- matrix(NA,nrow = n, ncol = 1) # matrix to store simulated path integrals
-  sim_r <- NULL # vector to store rates on the path
-  
-  
-  for (d in 1:n){
-    sim_r[1] <- r
-    for (j in 2:s){
-      mu <- alpha/beta + exp(-beta*dt)*(sim_r[j-1] -alpha/beta)
-      sd <- sqrt((sigma^2/(2*beta))*(1 -exp(-2*beta*(dt))))
-      sim_r[j] <- rnorm(1,mu,sd)
-    }
-    
-    int <- dt*(sum(sim_r)) # integral of path
-    sim_path[d,1] <- exp(-int) # bond price of path
-    
-  }
-  mean(sim_path) # empirical expectation of bond price using all paths
-}
-
-```
-
-```{r}
-
-# Another Version of the MOnte Carlo simulations
+#################################################################################
+# Crude Monte Carlo
+#################################################################################
 Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1000,s=100){
   
   # alpha, beta, sigma <- Fixed Parameters
@@ -88,9 +60,6 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1000
 
 
 ```
-
-
-
 
 ```{r 3}
 # Improvements to the Monte Carlo Simulation
@@ -136,8 +105,7 @@ Antithetic_variates= function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1
 
 ```
 
-
-```{r}
+```{r 4}
 #################################################################################
 # Moment matching
 #################################################################################
@@ -175,7 +143,7 @@ Moment_Matching=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1000,s
 
 ```
 
-```{r}
+```{r 5}
 #################################################################################
 # Control Variates
 #################################################################################
@@ -225,10 +193,9 @@ Control_Variates_estimate= function(alpha, beta, sigma,t,T,r0,n,s){
 
 ```
 
+```{r 6}
 
-```{r}
-
-#============================================================================================
+#======================================================================================
 # Doing some plots
 
 xvec <- seq(-0.3,0.5,0.01)
@@ -261,9 +228,7 @@ lines(xvec,AV, col ="black", lty =1.5)
 lines(xvec,MM, col ="yellow", lty =1.5)
 ```
 
-
-
-```{r 4}
+```{r 7}
 # Explicit Method
 
 # Simple Bond price function
@@ -325,7 +290,7 @@ V[(nr+1)/2,1]
 
 ```
 
-```{r 5}
+```{r 8}
 
 # Implicit Method
 
@@ -408,7 +373,7 @@ lines(xvec,S, col ="blue", lty =1.5)
 
 ```
 
-```{r 6}
+```{r 9}
 # Crank-Nicholson Method
 
 CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1250, J = seq(-0.4,0.6,0.01)){
@@ -518,12 +483,11 @@ plot(CN(), x = xvec[1:length(xvec)],xlab = " Annual Interest Rate",ylab = "Bond 
 lines(xvec,S, col ="blue", lty =1.5)
 ```
 
-
-```{r 7}
+```{r 11}
 # Modified Fully Implicit Method
 ```
 
-```{r 8, echo = FALSE}
+```{r 12, echo = FALSE}
 # Comparison of results
 # Varying short rates
 
@@ -548,10 +512,10 @@ for (j in 1:10){
   
 }
 
-var <- sum(compare_mat[,8])/9
 
-library(knitr)
-kable(compare_mat,align = "c")
-      
+
+# library(knitr)
+# kable(compare_mat,align = "c")
+       
 ```
 
