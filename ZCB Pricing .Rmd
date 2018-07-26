@@ -294,7 +294,7 @@ V[(nr+1)/2,1]
 
 # Implicit Method
 
-implicit <- function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:100, J =seq(0,0.10,0.01),T=1){
+implicit <- function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:1250, J =seq(-0.4,0.6,0.005),T=5){
   # I = partition of time interval
   # J = partition of short rate variable
   
@@ -360,7 +360,7 @@ implicit <- function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:100, J =seq(0,0
 
 # Doing some plots
 
-xvec <- seq(-0.3,0.6,0.01)
+xvec <- seq(-0.4,0.6,0.005)
 R <- implicit(T=5,J= xvec, I = 1:1250)
 S <- NULL
 for (r in 1:length(xvec)){
@@ -376,7 +376,7 @@ lines(xvec,S, col ="blue", lty =1.5)
 ```{r 9}
 # Crank-Nicholson Method
 
-CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1250, J = seq(-0.4,0.6,0.01)){
+CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1250, J = seq(-0.4,0.8,0.005)){
   # I = partition of time interval
   # J = partition of short rate interval
   
@@ -399,8 +399,8 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1
   
   pu <- function(j){
     -(alpha -beta*J[j])/(4*dr) - sigma^2/(4*(dr^2)) 
-  }
   
+  }
   
   
   #===========================================================================================
@@ -458,7 +458,7 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1
   
 
   
-  for (i in 1:(length(I))){
+  for (i in I){
     
     RHS <- Diag_2%*%Bond_values 
     Bond_values <- Inv%*%RHS
@@ -474,7 +474,7 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1
 #============================================================================================
 # Doing some plots
 
-xvec <- seq(-0.4,0.6,0.01)
+xvec <- seq(-0.4,0.8,0.005)
 S <- NULL
 for (r in 1:length(xvec)){
   S[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
@@ -484,7 +484,8 @@ lines(xvec,S, col ="blue", lty =1.5)
 ```
 
 ```{r 11}
-# Modified Fully Implicit Method
+
+
 ```
 
 ```{r 12, echo = FALSE}
