@@ -17,7 +17,7 @@ rm(list = ls(all =TRUE))
 ```{r 1}
 # Closed form solution to Bond price
 
-bond_price <- function(alpha=0.08,beta=0.8,sigma=0.005,t=0,T=1,r=0.08){
+bond_price <- function(alpha=0.08,beta=0.8,sigma=0.005,t=0,T=5,r=0.08){
   A <- (1-exp(-beta*(T-t)))/(beta)
   B <- (1/beta)*((alpha-(sigma)^2/(2*beta))*(A - T +t) - (sigma^(2)*A^2)/(4))
   exp(-A*r +B)
@@ -26,35 +26,35 @@ bond_price <- function(alpha=0.08,beta=0.8,sigma=0.005,t=0,T=1,r=0.08){
 ```
 
 ```{r 2}
-#################################################################################
+
 # Crude Monte Carlo
-#################################################################################
-Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1000,s=100){
+
+Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=100){
   
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
-  # r0 <- Initial rate at time 0
+  # r <- Initial rate at time 0
   # n <- Number of Simulations
-  # s <- NUmber of Subintervals 
+  # s <- NUmber of Sub-intervals over time 
   
   #Simulate interest rates
   dt <- T/s # Length of sub-intervals
-  sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
-  sim_path[1,]= r0
+  sim_path = matrix(0,s+1,n) # Matrix that stores rate pathways
+  sim_path[1,]= r # Initial rates on first row.
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*rnorm(1)# Euler Discretization
+      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*rnorm(1)# Discretize the SDE of the interest model using Euler Discretization to simulate rates over discrete sub-intervals
       sim_path[j,i]=sim_path[j-1,i]+dr
     }
   }
   
   # Monte Carlo Simulations
-  Sum=colSums(sim_path[2:(s+1),]*dt)
-  int=exp(-Sum)
-  mean=mean(int)
-  sd=sd(int)/sqrt(n)
-  result=mean
+  Sum = colSums(sim_path[2:(s+1),]*dt) # Approximate the integral using summation
+  int = exp(-Sum) # Take the exponent of the Integral
+  mean = mean(int) # Find the average of expression
+  sd = sd(int)/sqrt(n)
+  result = mean
   result
 }
 
@@ -64,24 +64,21 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1000
 ```{r 3}
 # Improvements to the Monte Carlo Simulation
 
-
-#################################################################################
 # Antithetic Variates
-################################################################################
 
-Antithetic_variates= function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1000,s=100){
+Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r = 0.08,n=1000,s=100){
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
-  sim_path_inv= matrix(0,nrow = s+1, ncol = n)# matrix to generate interest paths using inverse RV
-  sim_path[1,]= r0
-  sim_path_inv[1,]=r0
-  z = rnorm(n)
-  z. = -z
+  sim_path_inv= matrix(0,nrow = s+1, ncol = n)# matrix to generate interest paths using negative values of RV
+  sim_path[1,] = r
+  sim_path_inv[1,] = r
+  z = rnorm(n) # Generate standard normal values
+  z. = -z # Estimate negative value
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i] # Euler Discretization
-      dr_i= (alpha-beta*sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[i]
+      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i] # Same Euler Discretization as in the Crude Monte Carlo function
+      dr_i= (alpha-beta*sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[i] # Euler Discretization for negative rates
       sim_path[j,i]=sim_path[j-1,i]+dr
       sim_path_inv[j,i]=sim_path_inv[j-1,i]+dr_i
       
@@ -89,12 +86,12 @@ Antithetic_variates= function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1
   }
   
   # Monte Carlo Simulations
-  Sum=colSums(sim_path[2:(s+1),]*dt)
+  Sum=colSums(sim_path[2:(s+1),]*dt) # The Sum and Sum. variables record the summation of their respective rates to approximate the integral
   Sum.=colSums(sim_path_inv[2:(s+1),]*dt)
-  int.=exp(-Sum.)
-  int=exp(-Sum)# Estimate using the conjugate rates
-  Average=(int+int.)/2 # Average of estimates
-  mean=mean(Average)
+  int=exp(-Sum.) #Exponential of the estimate
+  int.=exp(-Sum) #Exponential of the estimate under the negative rv 
+  Average=(int+int.)/2   # The average of the expressions is taken for new estimate
+  mean=mean(Average)  # The average of the expression is taken for the estimate
   sd=sd(Average)/sqrt(n)
   result= mean
   result
@@ -110,7 +107,7 @@ Antithetic_variates= function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1
 # Moment matching
 #################################################################################
 
-Moment_Matching=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1000,s=100){
+Moment_Matching=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=100000,s=100){
   
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
@@ -231,62 +228,80 @@ lines(xvec,MM, col ="yellow", lty =1.5)
 ```{r 7}
 # Explicit Method
 
-# Simple Bond price function
-B <- function(t,T,r){
-  exp(-(T-t)*r)
-}
 
-explicit <- function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:100,T=2){
-
-# I = partition of time
-# J = partition of rate
-# dr = length of rate sub-intervals
-# r must be in the middle of partition of J
-# length of J must be twice the length of I
-dr <- 2*r/(2*length(I))
+explicit = function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:1250, J =seq(-0.4,0.6,0.005),T=5){
   
-J <- seq(0,2*r,dr)    
-
-dt = T/length(I) # length of each time sub-interval
-
-V <- matrix(NA, nrow = length(J), ncol = length(I)+1) # empty matrix
-nr <- length(J) # number of rows of the matrix - represents partition of rate
-nt <- length(I)+1 # number of columns - represents partition of time
-
-V[,length(I)+1] <- rep(1) # Boundary condition at expiry of bond
-
-count <- 0 # set up count variable
-for (i in rev(I)){ # rev is the reverse order of the time partition | i corresponds to the columns of the lattice
-  count <- count+1 # keeping track of loop
-  for (j in (1+count):(nr-count)){ # j corresponds to the rows of the lattice
-    pu <- dt*(sigma^2/(2*dr^2) + (alpha -beta*J[nr-j])/(2*dr)) # up value
-    pm <- 1 - (sigma^2*dt)/(dr^2) # middle value
-    pd <- dt*(sigma^2/(2*(dr^2)) - (alpha -beta*J[nr-j])/(2*dr)) # down value
-    V[j,i] <- ((1+J[nr-j]*dt)^(-1))*(pu*V[j-1,i+1] + pm*V[j,i+1] +pd*V[j+1,i+1])
+  # I = partition of time interval
+  # J = partition of short rate interval
+  
+  M <- length(J)
+  N <- length(I)
+  
+  dt <- T/N
+  dr <- J[2] -J[1]
+  
+  pd <- function(j){
+    ((J[j]+1/dt)^(-1))*(sigma^2/(2*(dr^2)) -(alpha -beta*J[j])/(2*dr))
+  }
+  
+  
+  pm <- function(j){
+    ((J[j]+1/dt)^(-1))*(1/dt -sigma^2/(dr^2))
+  }
+  
+  
+  pu <- function(j){
+    ((J[j]+1/dt)^(-1))*(sigma^2/(2*(dr^2)) + (alpha -beta*J[j])/(2*dr))
   }
 
+  Diag_1 <- matrix(0,ncol = M, nrow = M)
+    # Main diagonal of matrix 1
+    
+  for (j in 1:M){
+    Diag_1[j,j] <- pm(j)
+    
+  }
+  
+  # Filling lower diagonal of matrix 1
+  for (j in 2:M){
+    Diag_1[j,j-1] <- pd(j)
+  }
+  
+  # Filling upper diagonal of matirx 1
+  for (j in 1:(M-1)){
+    Diag_1[j,j+1] <- pu(j)
+  }  
+    
+  Bond_values <- matrix(1,nrow=M, ncol =1)
+  
+  for (i in I){
+    Bond_values <- Diag_1%*%Bond_values
+    Bond_values <- Bond_values
+  }
+  
+  index = match(as.character(r),xvec)
+  Bond_values[index]
 }
 
-V[(nr+1)/2,1]
 
-}
+ 
+
 
 
 #============================================================================================
 #Doing some plots
 # 
-# xvec <- seq(-0.3,0.5,0.01)
-# H <- NULL
-# for (r in 1:length(xvec)){
-#   S[r] <- bond_price(0.08,0.8,0.005,0,1,xvec[r])
-# }
-# 
+#  xvec <- seq(-0.4,0.6,0.005)
+# S <- NULL
 # for (i in 1:length(xvec)){
-#   H[i] <- explicit(r = xvec[i], I= 1:50, T=5)
-# }
+#    S[i] <- bond_price(alpha = 0.08,beta =0.8,sigma =0.005,t = 0, T = 5, r = xvec[i])
+#  }
+#  
+# H <- explicit(r = 0.08, I= 1:100000, T=5,alpha = 0.08, beta =0.8, sigma= 0.005, J = xvec)
 # 
-# plot(H, x = xvec,xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Crank - Nicolson vs Known Solution")
-# lines(xvec,S, col ="blue", lty =1.5)
+#  
+#  plot(H, x = xvec,xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Explicit vs Known Solution")
+#  lines(xvec,S, col ="blue", lty =1.5)
 
 ```
 
@@ -347,12 +362,13 @@ implicit <- function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:1250, J =seq(-0
     C <- matrix(0,ncol = 1, nrow = nr-1) # Another matrix for boundary conditions
     C[nr-1,1] <- (-pu(nr-1))*B[nr-1,1]
     C[1,1] <- -pd(1)
-    A <- B + C # Working backwards recursively 
+    A <- B  # Working backwards recursively 
     B <- solve(Diag)%*%A 
   }
   
-  B # Output of bond prices at time 0 for varying rates
-  
+  #B # Output of bond prices at time 0 for varying rates
+  index = match(as.character(r),xvec)
+  B[index]
 }
 
 
@@ -360,14 +376,14 @@ implicit <- function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:1250, J =seq(-0
 
 # Doing some plots
 
-xvec <- seq(-0.4,0.6,0.005)
-R <- implicit(T=5,J= xvec, I = 1:1250)
-S <- NULL
-for (r in 1:length(xvec)){
-  S[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
-  }
-plot(R, x = xvec[1:length(xvec)-1],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Implicit Method vs Known Solution")
-lines(xvec,S, col ="blue", lty =1.5)
+# xvec <- seq(-0.4,0.6,0.005)
+# R <- implicit(T=5,J= xvec, I = 1:1250)
+# S <- NULL
+# for (r in 1:length(xvec)){
+#   S[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
+#   }
+# plot(R, x = xvec[1:length(xvec)-1],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Implicit Method vs Known Solution")
+# lines(xvec,S, col ="blue", lty =1.5)
 
 
 
@@ -464,8 +480,10 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1
     Bond_values <- Inv%*%RHS
   }
 
-  Bond_values
+  #Bond_values
   
+  index = match(as.character(r),xvec)
+  Bond_values[index]
 }
 
 
@@ -474,13 +492,13 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1
 #============================================================================================
 # Doing some plots
 
-xvec <- seq(-0.4,0.8,0.005)
-S <- NULL
-for (r in 1:length(xvec)){
-  S[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
-}
-plot(CN(), x = xvec[1:length(xvec)],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Crank - Nicolson vs Known Solution")
-lines(xvec,S, col ="blue", lty =1.5)
+# xvec <- seq(-0.4,0.8,0.005)
+# S <- NULL
+# for (r in 1:length(xvec)){
+#   S[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
+# }
+# plot(CN(), x = xvec[1:length(xvec)],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Crank - Nicolson vs Known Solution")
+# lines(xvec,S, col ="blue", lty =1.5)
 ```
 
 ```{r 11}
