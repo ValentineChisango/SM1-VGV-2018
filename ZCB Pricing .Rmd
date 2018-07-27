@@ -58,7 +58,8 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1000
   result
 }
 
-
+Crude_Monte_Carlo()
+bond_price()
 ```
 
 ```{r 3}
@@ -186,12 +187,46 @@ CIR_MC= function(alpha,beta,sigma,T,r0,n,s){
 
 # Therefore the control variates estimate:
 
-Control_Variates_estimate= function(alpha, beta, sigma,t,T,r0,n,s){
+Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=1,r0 = 0.08,n=1000,s=100){
   Crude_Monte_Carlo(alpha,beta,sigma,T,r0,n,s)[1]- CIR_MC(alpha,beta,sigma,T,r0,n,s)[1]+bond_price_CIR(alpha,beta,sigma,t,T,r0)
 }
-  
 
+
+V=seq(0.01,0.05,0.01)
+J=NULL
+K=NULL
+for ( i in 1:length(V)){
+  J[i]=Control_Variates_estimate(r0=V[i])
+  K[i]=bond_price(r=V[i])
+}
+P=(J-K)^2
+P
 ```
+
+```{r}
+# Comparisons of different methods
+#################################################################################
+# Stability of results
+#################################################################################
+
+# We do this by checking the variance amongst the results when simulated many times.
+
+r_vec=seq(-0.4,0.5,0.005)
+CR=NULL
+N=NULL
+for (i in 1:length(r_vec)){
+  CR[i]=Crude_Monte_Carlo(r0=r_vec[i])
+  if(CR[i])
+}
+
+
+
+Var=var(CR)
+Var
+CR
+Crude_Monte_Carlo(r0=-0.4)
+```
+
 
 ```{r 6}
 
@@ -207,6 +242,7 @@ for (r in 1:length(xvec)){
 CR <- NULL
 AV <- NULL
 MM <- NULL
+CO <- NULL
 
 for (k in 1: length(xvec)){
   CR[k] <- Crude_Monte_Carlo(r0 = xvec[k], T=5)
@@ -222,10 +258,16 @@ for (j in 1: length(xvec)){
   
 }
 
+for (t in 1: length(xvec)){
+  CO[t] <- Control_Variates_estimate(r0 = xvec[t], T =5)
+  
+}
+
 plot(CR, x = xvec[1:length(xvec)],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Monte Carlo vs Known Solution")
 lines(xvec,S, col ="blue", lty =1.5)
 lines(xvec,AV, col ="black", lty =1.5)
 lines(xvec,MM, col ="yellow", lty =1.5)
+lines(xvec,MM, col ="green", lty =1.5)
 ```
 
 ```{r 7}
