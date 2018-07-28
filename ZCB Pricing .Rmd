@@ -121,16 +121,15 @@ Moment_Matching=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=100000
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r0
   z=rnorm(n)
-  z_m= z-mean(z) # MOMENT MATCHING TRANSFORMATION 
+  z_m= z-mean(z) # Moment matching transformation of RV to match finite moments 
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z_m[i]# Euler Discretization
+      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z_m[i] # Simulate rates using the transformed rv 
       sim_path[j,i]=sim_path[j-1,i]+dr
     }
   }
   
-  # Monte Carlo Simulations
   Sum=colSums(sim_path[2:(s+1),]*dt)
   int=exp(-Sum)
   mean=mean(int)
@@ -148,7 +147,7 @@ Moment_Matching=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=100000
 
 # We have decided to make use of the CIR model as our control variate process.
 # Below is the closed form solution under the CIR model
-bond_price_CIR <- function(alpha,beta,sigma,t,T,r0){
+bond_price_CIR <- function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=1,r0 = 0.08){
   h <- sqrt(alpha^(2)+2*sigma^(2))
   A <-(2*h*exp((alpha+h)*(T-t)/2)/(2*h+(alpha+h)*(exp((T-t)*(h))-1)))^((2*alpha*beta)/sigma^(2))
   B <-2*(exp((T-t)*(h))-1)/(2*h+(alpha+h)*(exp((T-t)*(h))-1))
@@ -158,7 +157,7 @@ bond_price_CIR <- function(alpha,beta,sigma,t,T,r0){
 
 # Monte Carlo Simulations of Bond Price under the CIR model
 
-CIR_MC= function(alpha,beta,sigma,T,r0,n,s){
+CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=1000,s=100){
   
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
@@ -181,7 +180,8 @@ CIR_MC= function(alpha,beta,sigma,T,r0,n,s){
   result
   
 }
-
+bond_price_CIR()
+CIR_MC()
 # Therefore the control variates estimate:
 
 Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=1,r0 = 0.08,n=1000,s=100){
@@ -208,20 +208,7 @@ P
 
 # We do this by checking the variance amongst the results when simulated many times.
 
-r_vec=seq(-0.4,0.5,0.005)
-CR=NULL
-N=NULL
-for (i in 1:length(r_vec)){
-  CR[i]=Crude_Monte_Carlo(r0=r_vec[i])
-  if(CR[i])
-}
 
-
-
-Var=var(CR)
-Var
-CR
-Crude_Monte_Carlo(r0=-0.4)
 ```
 
 
