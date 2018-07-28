@@ -15,9 +15,12 @@ rm(list = ls(all =TRUE))
 ```
 
 ```{r 1}
-# Closed form solution to Bond price
+# Closed form solution of the Bond price
 
 bond_price <- function(alpha=0.08,beta=0.8,sigma=0.005,t=0,T=5,r=0.08){
+  # alpha, beta, sigma <- Fixed Parameters
+  # T <- maturity time
+  # r <- Initial rate at time 0  
   A <- (1-exp(-beta*(T-t)))/(beta)
   B <- (1/beta)*((alpha-(sigma)^2/(2*beta))*(A - T +t) - (sigma^(2)*A^2)/(4))
   exp(-A*r +B)
@@ -27,18 +30,18 @@ bond_price <- function(alpha=0.08,beta=0.8,sigma=0.005,t=0,T=5,r=0.08){
 
 ```{r 2}
 
-# Crude Monte Carlo
+# Crude Monte Carlo function 
 
-Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=100){
+Crude_Monte_Carlo = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5, r = 0.08, n = 1000, s = 200){
   
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
   # r <- Initial rate at time 0
   # n <- Number of Simulations
-  # s <- NUmber of Sub-intervals over time 
+  # s <- NUmber of Subintervals over time 
   
   #Simulate interest rates
-  dt <- T/s # Length of sub-intervals
+  dt <- T/s # Length of subintervals
   sim_path = matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r # Initial rates on first row.
   
@@ -66,8 +69,9 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,
 
 # Antithetic Variates
 
-Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r = 0.08,n=1000,s=100){
-  dt <- T/s # Length of sub-intervals
+Antithetic_variates = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5, r = 0.08, n = 1000, s = 200){
+  
+  dt <- T/s # Length of subintervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path_inv= matrix(0,nrow = s+1, ncol = n)# matrix to generate interest paths using negative values of RV
   sim_path[1,] = r
@@ -86,41 +90,38 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r = 0.08,n=1
   }
   
   # Monte Carlo Simulations
-  Sum=colSums(sim_path[2:(s+1),]*dt) # The Sum and Sum. variables record the summation of their respective rates to approximate the integral
-  Sum.=colSums(sim_path_inv[2:(s+1),]*dt)
-  int=exp(-Sum.) #Exponential of the estimate
-  int.=exp(-Sum) #Exponential of the estimate under the negative rv 
-  Average=(int+int.)/2   # The average of the expressions is taken for new estimate
-  mean=mean(Average)  # The average of the expression is taken for the estimate
-  sd=sd(Average)/sqrt(n)
-  result= mean
+  Sum = colSums(sim_path[2:(s+1),]*dt) # The Sum and Sum. variables record the summation of their respective rates to approximate the integral
+  Sum.= colSums(sim_path_inv[2:(s+1),]*dt)
+  int = exp(-Sum.) #Exponential of the estimate
+  int.= exp(-Sum) #Exponential of the estimate under the negative rv 
+  Average = (int+int.)/2   # The average of the expressions is taken for new estimate
+  mean = mean(Average)  # The average of the expression is taken for the estimate
+  sd =sd(Average)/sqrt(n)
+  result = mean
   result
   
 }
 
-
-
 ```
 
 ```{r 4}
-#################################################################################
-# Moment matching
-#################################################################################
 
-Moment_Matching=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=100000,s=100){
+# Moment matching
+
+Moment_Matching = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5,r = 0.08, n = 1000, s = 200){
   
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
-  # r0 <- Initial rate at time 0
+  # r <- Initial rate at time 0
   # n <- Number of Simulations
   # s <- NUmber of Subintervals 
   
   #Simulate interest rates
-  dt <- T/s # Length of sub-intervals
-  sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
-  sim_path[1,]= r0
-  z=rnorm(n)
-  z_m= z-mean(z) # MOMENT MATCHING TRANSFORMATION 
+  dt <- T/s # Length of subintervals
+  sim_path = matrix(0,s+1,n) # Matrix that stores rate pathways
+  sim_path[1,]= r
+  z = rnorm(n)
+  z_m = z-mean(z) # MOMENT MATCHING TRANSFORMATION 
   
   for (i in 1:n){
     for (j in 2:(s+1)){
@@ -130,38 +131,37 @@ Moment_Matching=function(alpha =0.08,beta=0.8,sigma=0.005,T=1,r0 = 0.08,n=100000
   }
   
   # Monte Carlo Simulations
-  Sum=colSums(sim_path[2:(s+1),]*dt)
-  int=exp(-Sum)
-  mean=mean(int)
-  sd=sd(int)/sqrt(n)
-  result=mean
+  Sum = colSums(sim_path[2:(s+1),]*dt)
+  int = exp(-Sum)
+  mean = mean(int)
+  sd = sd(int)/sqrt(n)
+  result= mean
   result
 }
 
 ```
 
 ```{r 5}
-#################################################################################
+
 # Control Variates
-#################################################################################
 
 # We have decided to make use of the CIR model as our control variate process.
 # Below is the closed form solution under the CIR model
-bond_price_CIR <- function(alpha,beta,sigma,t,T,r0){
+bond_price_CIR <- function(alpha, beta, sigma, t, T, r){
   h <- sqrt(alpha^(2)+2*sigma^(2))
   A <-(2*h*exp((alpha+h)*(T-t)/2)/(2*h+(alpha+h)*(exp((T-t)*(h))-1)))^((2*alpha*beta)/sigma^(2))
   B <-2*(exp((T-t)*(h))-1)/(2*h+(alpha+h)*(exp((T-t)*(h))-1))
-  A*exp(-B*r0)
+  A*exp(-B*r)
 }
 
 
 # Monte Carlo Simulations of Bond Price under the CIR model
 
-CIR_MC= function(alpha,beta,sigma,T,r0,n,s){
+CIR_MC= function(alpha  = 0.08, beta = 0.8, sigma = 0.005, T = 5, r = 0.08, n = 1000, s = 200){
   
-  dt <- T/s # Length of sub-intervals
-  sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
-  sim_path[1,]= r0
+  dt <- T/s # Length of subintervals
+  sim_path = matrix(0,s+1,n) # Matrix that stores rate pathways
+  sim_path[1,] = r
   
   for (i in 1:n){
     for (j in 2:(s+1)){
@@ -172,73 +172,40 @@ CIR_MC= function(alpha,beta,sigma,T,r0,n,s){
   }
   
   # Monte Carlo Simulations
-  Sum=colSums(sim_path[2:(s+1),]*dt)
-  int=exp(-Sum)
-  mean=mean(int)
-  sd=sd(int)/sqrt(n)
-  result=c(mean,sd)
+  Sum = colSums(sim_path[2:(s+1),]*dt)
+  int = exp(-Sum)
+  mean = mean(int)
+  sd = sd(int)/sqrt(n)
+  result = mean
   result
   
 }
 
 # Therefore the control variates estimate:
 
-Control_Variates_estimate= function(alpha, beta, sigma,t,T,r0,n,s){
-  Crude_Monte_Carlo(alpha,beta,sigma,T,r0,n,s)[1]- CIR_MC(alpha,beta,sigma,T,r0,n,s)[1]+bond_price_CIR(alpha,beta,sigma,t,T,r0)
+Control_Variates_estimate = function(alpha = 0.08, beta = 0.8, sigma = 0.005,t = 0,T = 5,r = 0.08,n = 1000,s = 200){
+  Crude_Monte_Carlo(alpha,beta,sigma,T,r,n,s)- CIR_MC(alpha,beta,sigma,T,r,n,s)[1]+bond_price_CIR(alpha,beta,sigma,t,T,r)
 }
   
 
 ```
 
 ```{r 6}
-
-#======================================================================================
-# Doing some plots
-
-xvec <- seq(-0.3,0.5,0.01)
-S <- NULL
-for (r in 1:length(xvec)){
-  S[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
-}
-
-CR <- NULL
-AV <- NULL
-MM <- NULL
-
-for (k in 1: length(xvec)){
-  CR[k] <- Crude_Monte_Carlo(r0 = xvec[k], T=5)
-}
-
-for (s in 1: length(xvec)){
-  AV[s] <- Antithetic_variates(r0 = xvec[s], T =5)
-  
-}
-
-for (j in 1: length(xvec)){
-  MM[j] <- Moment_Matching(r0 = xvec[j], T =5)
-  
-}
-
-plot(CR, x = xvec[1:length(xvec)],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Monte Carlo vs Known Solution")
-lines(xvec,S, col ="blue", lty =1.5)
-lines(xvec,AV, col ="black", lty =1.5)
-lines(xvec,MM, col ="yellow", lty =1.5)
-```
-
-```{r 7}
 # Explicit Method
 
-
-explicit = function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:1250, J =seq(-0.4,0.6,0.005),T=5){
+explicit = function(alpha = 0.08,beta = 0.8, sigma = 0.005,r = 0.08, I = 1:1250, J = seq(-0.4,0.6,0.005),T = 5){
   
   # I = partition of time interval
-  # J = partition of short rate interval
+  # J = partition of short rates sequence
   
-  M <- length(J)
-  N <- length(I)
+  M <- length(J) # Number of short rate grid points
+  N <- length(I) # Number of time grid poiints
   
-  dt <- T/N
-  dr <- J[2] -J[1]
+  
+  dt <- T/N # Lenght of each time subinterval
+  dr <- J[2] -J[1] # Lenght of each time interval
+  
+  # For each j in J we define the following functions at a fixed time point
   
   pd <- function(j){
     ((J[j]+1/dt)^(-1))*(sigma^2/(2*(dr^2)) -(alpha -beta*J[j])/(2*dr))
@@ -254,32 +221,38 @@ explicit = function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:1250, J =seq(-0.
     ((J[j]+1/dt)^(-1))*(sigma^2/(2*(dr^2)) + (alpha -beta*J[j])/(2*dr))
   }
 
+  #Setting up tridiagonal matrix
+  
   Diag_1 <- matrix(0,ncol = M, nrow = M)
-    # Main diagonal of matrix 1
+    # Main diagonal of matrix 
     
   for (j in 1:M){
     Diag_1[j,j] <- pm(j)
     
   }
   
-  # Filling lower diagonal of matrix 1
+  # Filling lower diagonal of matrix 
   for (j in 2:M){
     Diag_1[j,j-1] <- pd(j)
   }
   
-  # Filling upper diagonal of matirx 1
+  # Filling upper diagonal of matirx 
   for (j in 1:(M-1)){
     Diag_1[j,j+1] <- pu(j)
   }  
-    
+  
+  # Bond price values at maturity are all 1 unit   
   Bond_values <- matrix(1,nrow=M, ncol =1)
   
-  for (i in I){
+  # Working backwards in time
+  for (i in 1:(length(I)+1)){
     Bond_values <- Diag_1%*%Bond_values
     Bond_values <- Bond_values
   }
   
-  index = match(as.character(r),xvec)
+  # Finding index of the desired short rate
+  index = match(as.character(r),J)
+  # Output is the corresponding bond price at time 0
   Bond_values[index]
 }
 
@@ -288,122 +261,98 @@ explicit = function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:1250, J =seq(-0.
 
 
 
-#============================================================================================
-#Doing some plots
-# 
-#  xvec <- seq(-0.4,0.6,0.005)
-# S <- NULL
-# for (i in 1:length(xvec)){
-#    S[i] <- bond_price(alpha = 0.08,beta =0.8,sigma =0.005,t = 0, T = 5, r = xvec[i])
-#  }
-#  
-# H <- explicit(r = 0.08, I= 1:100000, T=5,alpha = 0.08, beta =0.8, sigma= 0.005, J = xvec)
-# 
-#  
-#  plot(H, x = xvec,xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Explicit vs Known Solution")
-#  lines(xvec,S, col ="blue", lty =1.5)
-
 ```
 
-```{r 8}
-
+```{r 7}
 # Implicit Method
 
-implicit <- function(alpha= 0.08,beta=0.8,sigma=0.005,r=0.08,I=1:1250, J =seq(-0.4,0.6,0.005),T=5){
+implicit <- function(alpha = 0.08,beta = 0.8,sigma = 0.005,r = 0.08,I = 1:1250, J =seq(-0.4,0.6,0.005),T=5){
+  
   # I = partition of time interval
   # J = partition of short rate variable
   
-  nr <- length(J) # number of rows based on rate grid points
-  nc <- length(I) # number of columns based on number of time grid points
+  M <- length(J) # Number of short rate grid points
+  N <- length(I) # Number of time grid poiint
   
-  dr <- J[2] - J[1] #length of each sub-interval across J
-  dt <- T/length(I) #length of each sub-interval across I
+  dr <- J[2] - J[1] # length of each sub-interval across J
+  dt <- T/N # length of each sub-interval across I
   
   
   # For each j in J we define the following functions at a fixed time point
   
   pd <- function(j){
-    dt*((alpha-beta*J[j+1])/(2*dr) - (sigma^2)/(2*dr^2))
+    dt*((alpha-beta*J[j])/(2*dr) - (sigma^2)/(2*dr^2))
     
   }
   
   pm <- function(j){
-    dt*(J[j+1] + 1/dt +sigma^2/(dr^2))
+    dt*(J[j] + 1/dt +sigma^2/(dr^2))
   }
   
   pu <- function(j){
-    -dt*((alpha-beta*J[j+1])/(2*dr) + (sigma^2)/(2*dr^2))
-    
+    -dt*((alpha-beta*J[j])/(2*dr) + (sigma^2)/(2*dr^2))
   }
   
   # Setting up tridiagonal matrix
-  Diag <- matrix(0,nrow = nr-1,ncol = nr-1)
+  Diag <- matrix(0,nrow = M,ncol = M)
   
   # Filling main diagonal
-  for (j in 1:(nr-1)){
+  for (j in 1:M){
     Diag[j,j] <- pm(j)
     
   }
   
   # Filling lower diagonal
-  for (j in 2:(nr-1)){
+  for (j in 2:M){
     Diag[j,j-1] <- pd(j)
   }
   
   # Filling upper diagonal
-  for (j in 1:(nr-2)){
+  for (j in 1:(M-1)){
     Diag[j,j+1] <- pu(j)
   }
   
   
-  B <- matrix(1,ncol = 1,nrow = nr-1) # The matrix of bond prices at maturity time 
+  Bond_values <- matrix(1,ncol = 1,nrow = M) # The matrix of bond prices at maturity time 
+  Inv <- solve(Diag) # Inverse of tridiagonal matrix
   
-  for (i in I){
-    C <- matrix(0,ncol = 1, nrow = nr-1) # Another matrix for boundary conditions
-    C[nr-1,1] <- (-pu(nr-1))*B[nr-1,1]
+  for (i in 1:(length(I) +1)){
+    C <- matrix(0,ncol = 1, nrow = M) # Another matrix for boundary conditions
+    C[M,1] <- (-pu(M))*Bond_values[M,1]
     C[1,1] <- -pd(1)
-    A <- B  # Working backwards recursively 
-    B <- solve(Diag)%*%A 
+
+    RHS <- Bond_values  # Working backwards recursively 
+    Bond_values <- Inv%*%RHS
   }
-  
-  #B # Output of bond prices at time 0 for varying rates
-  index = match(as.character(r),xvec)
-  B[index]
+
+  # Finding index of the desired short rate
+  index = match(as.character(r),J)
+  # Output is the corresponding bond price at time 0
+  Bond_values[index]
 }
 
 
-#============================================================================================
 
-# Doing some plots
-
-# xvec <- seq(-0.4,0.6,0.005)
-# R <- implicit(T=5,J= xvec, I = 1:1250)
-# S <- NULL
-# for (r in 1:length(xvec)){
-#   S[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
-#   }
-# plot(R, x = xvec[1:length(xvec)-1],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Implicit Method vs Known Solution")
-# lines(xvec,S, col ="blue", lty =1.5)
 
 
 
 ```
 
-```{r 9}
+```{r 8}
 # Crank-Nicholson Method
 
-CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1250, J = seq(-0.4,0.8,0.005)){
+CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:1250, J = seq(-0.4,0.6,0.005)){
+  
   # I = partition of time interval
   # J = partition of short rate interval
   
-  M <- length(J)
-  N <- length(I)
+  M <- length(J) # Number of short rate grid points
+  N <- length(I) # Number of time grid poiints
   
-  dt <- T/N
-  dr <- J[2] -J[1]
+  dt <- T/N # Length of each time subinterval
+  dr <- J[2] -J[1] # Lenght of each rate subinterval
   #===========================================================================================
   # Define the following functions for j = 1,...,M at each time point i
-  
   
   pd <- function(j){
     (alpha -beta*J[j])/(4*dr) - sigma^2/(4*(dr^2))
@@ -441,16 +390,16 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1
     Diag_1[j,j+1] <- -pu(j)
   }  
   
+  
   # Main diagonal of matrix 2
   for (j in 1:M){
     Diag_2[j,j] <- -1/dt + pm(j)
-    
-  }
+    }
   
   # Filling lower diagonal of matrix 2
   for (j in 2:M){
     Diag_2[j,j-1] <- pd(j)
-  }
+    }
   
   # Filling upper diagonal of matirx 2
   for (j in 1:M-1){
@@ -472,69 +421,168 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T =5 , I = 1:1
   # C_2[M,1] <- pu(M)
   Inv <- solve(Diag_1)
   
-
-  
-  for (i in I){
+  for (i in 1:(length(I)+1)){
     
     RHS <- Diag_2%*%Bond_values 
     Bond_values <- Inv%*%RHS
   }
 
-  #Bond_values
-  
-  index = match(as.character(r),xvec)
+  # Index of rate corresponding to desired short rate
+  index = match(as.character(r), J)
+  # Output corresponding to desired short rate
   Bond_values[index]
 }
 
 
 
 
-#============================================================================================
-# Doing some plots
-
-# xvec <- seq(-0.4,0.8,0.005)
-# S <- NULL
-# for (r in 1:length(xvec)){
-#   S[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
-# }
-# plot(CN(), x = xvec[1:length(xvec)],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Crank - Nicolson vs Known Solution")
-# lines(xvec,S, col ="blue", lty =1.5)
-```
-
-```{r 11}
-
 
 ```
 
-```{r 12, echo = FALSE}
-# Comparison of results
-# Varying short rates
+```{r 9}
+# Modified Fully Implicit Method
 
-compare_mat <- matrix(NA,nrow = 10, ncol = 10) # matrix of comparison
+```
 
-colnames(compare_mat) <- c("Alpha","Beta","Sigma","Initial rate","Known Price","Monte Carlo"," MC System Time","MC Squared Deviations", "Moment Matching", "System Time")
+```{r 10}
+# Plots of the different methods
+par(mfrow = c(2,2))
 
+xvec <- seq(-0.4,0.6,0.005) # Vector for rates
 
-for (j in 1:10){
-  compare_mat[j,1] <- 0.08
-  compare_mat[j,2] <- 0.8
-  compare_mat[j,3] <- 0.005
-  compare_mat[j,4] <- 0.01 +0.01*(j-1)
-  compare_mat[j,5] <- bond_price(alpha = compare_mat[j,1],beta = compare_mat[j,2], sigma = compare_mat[j,3], t= 0, T = 1, r = compare_mat[j,4])
-  start_time <- proc.time()[1]
-  compare_mat[j,6] <- Crude_Monte_Carlo(alpha = compare_mat[j,1],beta = compare_mat[j,2], sigma = compare_mat[j,3], T = 1, r0 = compare_mat[j,4], n = 1000, s=250)
-  compare_mat[j,7] <- proc.time()[1] -start_time
-  compare_mat[j,8] <- (compare_mat[j,6] -compare_mat[j,5])^2
-  start_time <- proc.time()[1]
-  compare_mat[j,9] <- Moment_Matching(alpha = compare_mat[j,1],beta = compare_mat[j,2], sigma = compare_mat[j,3], T = 1, r0 = compare_mat[j,4], n = 1000, s=250)
-  compare_mat[j,10] <- proc.time()[1] - start_time
-  
+known_sol <- NULL # Vector to hold the known closed form solution
+for (r in 1:length(xvec)){
+  known_sol[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
 }
+
+CR <- NULL # Vector to hold Crude Monte Carlo Solutions
+AV <- NULL # Vector to hold Antithetic Monte Carlo Solutions
+MM <- NULL # Vector to hold Moment Matching  Carlo Solutions
+CV <- NULL # Vector to hold Control Variates Monte Carlo Solutions
+
+Expl <- NULL # Vector to hold Explicit method Solutions
+Impl <- NULL # Vector to hold Implicit method Solutions
+Crank <- NULL # Vector to hold Crank-Nicolson Solutions
+
+
+# Plots of Monte Carlo Methods ----------------------------------------------------------------------
+
+for (i in 1: length(xvec)){
+  CR[i] <- Crude_Monte_Carlo(r = xvec[i])
+}
+
+for (i in 1: length(xvec)){
+  AV[i] <- Antithetic_variates(r = xvec[i])
+}
+
+for (i in 1: length(xvec)){
+  MM[i] <- Moment_Matching(r = xvec[i])
+}
+
+for (i in 1: length(xvec)){
+  CV[i] <- Control_Variates_estimate(r = xvec[i])
+}
+
+plot(CR, x = xvec[1:length(xvec)],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Monte Carlo Solutions vs Known Solution")
+lines(xvec, known_sol, col ="blue", lty =1.5)
+lines(xvec, AV, col ="black", lty =1.5)
+lines(xvec, MM, col ="yellow", lty =1.5)
+lines(xvec, CV, col ="green", lty =1.5)
+
+
+# Plots of Finite Difference Methods ----------------------------------------------------------------------
+
+for (i in 1: length(xvec)){
+  Expl[i] <- explicit(r = xvec[i])
+}
+
+for (i in 1: length(xvec)){
+  Impl[i] <- implicit(r = xvec[i])
+}
+
+for (i in 1: length(xvec)){
+  Crank[i] <- CN(r = xvec[i])
+}
+
+
+plot(Expl, x = xvec ,xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Explicit Method vs Known Solution")
+lines(xvec, known_sol, col ="blue", lty =1.5)
+
+plot(Impl, x = xvec ,xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Implicit Method vs Known Solution")
+lines(xvec, known_sol, col ="blue", lty =1.5)
+
+
+plot(Crank, x = xvec ,xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Crank-Nicolson Method vs Known Solution")
+lines(xvec, known_sol, col ="blue", lty =1.5)
+
+```
+
+```{r 11, echo = FALSE}
+# Comparison of results for numerical methods
+
+
+compare_mat <- matrix(NA,nrow = 7, ncol = 4) # matrix of comparison
+
+colnames(compare_mat) <- c("Price", "Known Price", "Error", "System Time")
+rownames(compare_mat) <- c("Crude Monte Carlo", "Antithetic Variates", "Moment Matching", "Control Variates", "Explicit Method", "Implicit Method", "Crank-Nicolson Method")
+
+compare_mat[,2] <- bond_price()
+
+# Crude Monte Carlo
+start_time <- proc.time()[1]
+compare_mat[1,1] <- Crude_Monte_Carlo()
+compare_mat[1,4] <- proc.time()[1] - start_time
+compare_mat[1,3] <- compare_mat[1,2] - compare_mat[1,1]
+
+# Antithetic Variates
+start_time <- proc.time()[1]
+compare_mat[2,1] <- Antithetic_variates()
+compare_mat[2,4] <- proc.time()[1] - start_time
+compare_mat[2,3] <- compare_mat[2,2] - compare_mat[2,1]
+
+# Moment Matching
+start_time <- proc.time()[1]
+compare_mat[3,1] <- Moment_Matching()
+compare_mat[3,4] <- proc.time()[1] - start_time
+compare_mat[3,3] <- compare_mat[3,2] - compare_mat[3,1]
+
+# Control Variates
+start_time <- proc.time()[1]
+compare_mat[4,1] <- Control_Variates_estimate()
+compare_mat[4,4] <- proc.time()[1] - start_time
+compare_mat[4,3] <- compare_mat[4,2] - compare_mat[4,1]
+
+# Explicit method
+start_time <- proc.time()[1]
+compare_mat[5,1] <- explicit()
+compare_mat[5,4] <- proc.time()[1] - start_time
+compare_mat[5,3] <- compare_mat[5,2] - compare_mat[5,1]
+
+# Implicit method
+start_time <- proc.time()[1]
+compare_mat[6,1] <- implicit()
+compare_mat[6,4] <- proc.time()[1] - start_time
+compare_mat[6,3] <- compare_mat[6,2] - compare_mat[6,1]
+
+# Crank-Nicolson method
+start_time <- proc.time()[1]
+compare_mat[7,1] <- CN()
+compare_mat[7,4] <- proc.time()[1] - start_time
+compare_mat[7,3] <- compare_mat[7,2] - compare_mat[7,1]
+
 
 
 
 # library(knitr)
 # kable(compare_mat,align = "c")
        
+```
+
+```{r 12}
+# Sensitivity Tests
+
+
+
+
 ```
 
