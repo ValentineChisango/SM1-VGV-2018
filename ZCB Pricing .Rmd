@@ -581,8 +581,27 @@ compare_mat[7,3] <- compare_mat[7,2] - compare_mat[7,1]
 ```{r 12}
 # Sensitivity Tests
 
+senses <- matrix(nrow=10, ncol=9) # matrix to hold prices for various parameters
+colnames(senses) <-c("Parameters","Closed Form","Crude Monte Carlo","Antithetic Variates","Moment Matching","Control Variates","Explicit","Implicit","Crank-Nicholson")
 
+#Initial Parameters
+senses[1,2]=bond_price()
+senses[1,3]=Crude_Monte_Carlo()
+senses[1,4]=Antithetic_variates()
+senses[1,5]=Moment_Matching()
+senses[1,6]=Control_Variates_estimate()
+senses[1,7]=explicit()
+senses[1,8]=implicit()
+senses[1,9]=CN()
 
-
+#r=0.1
+senses[2,2]=bond_price(r=0.1)
+senses[2,3]=Crude_Monte_Carlo(r=0.1)
+senses[2,4]=Antithetic_variates(r=0.1)
+senses[2,5]=Moment_Matching(r=0.1)
+senses[2,6]=Control_Variates_estimate(r=0.1)
+senses[2,7]=explicit(r=0.1)
+senses[2,8]=implicit(r=0.1)
+senses[2,9]=CN(r=0.1)
 ```
 
