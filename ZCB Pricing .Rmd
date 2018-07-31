@@ -581,7 +581,7 @@ compare_mat[7,3] <- compare_mat[7,2] - compare_mat[7,1]
 ```{r 12}
 # Sensitivity Tests
 
-senses <- matrix(nrow=10, ncol=9) # matrix to hold prices for various parameters
+senses <- matrix(nrow=13, ncol=9) # matrix to hold prices for various parameters
 colnames(senses) <-c("Parameters","Closed Form","Crude Monte Carlo","Antithetic Variates","Moment Matching","Control Variates","Explicit","Implicit","Crank-Nicholson")
 
 #Initial Parameters
@@ -594,14 +594,150 @@ senses[1,7]=explicit()
 senses[1,8]=implicit()
 senses[1,9]=CN()
 
+#r=0.05
+senses[2,2]=bond_price(r=0.05)
+senses[2,3]=Crude_Monte_Carlo(r=0.05)
+senses[2,4]=Antithetic_variates(r=0.05)
+senses[2,5]=Moment_Matching(r=0.05)
+senses[2,6]=Control_Variates_estimate(r=0.05)
+senses[2,7]=explicit(r=0.05)
+senses[2,8]=implicit(r=0.05)
+senses[2,9]=CN(r=0.05)
+
 #r=0.1
-senses[2,2]=bond_price(r=0.1)
-senses[2,3]=Crude_Monte_Carlo(r=0.1)
-senses[2,4]=Antithetic_variates(r=0.1)
-senses[2,5]=Moment_Matching(r=0.1)
-senses[2,6]=Control_Variates_estimate(r=0.1)
-senses[2,7]=explicit(r=0.1)
-senses[2,8]=implicit(r=0.1)
-senses[2,9]=CN(r=0.1)
+senses[3,2]=bond_price(r=0.1)
+senses[3,3]=Crude_Monte_Carlo(r=0.1)
+senses[3,4]=Antithetic_variates(r=0.1)
+senses[3,5]=Moment_Matching(r=0.1)
+senses[3,6]=Control_Variates_estimate(r=0.1)
+senses[3,7]=explicit(r=0.1)
+senses[3,8]=implicit(r=0.1)
+senses[3,9]=CN(r=0.1)
+
+#T=1
+senses[4,2]=bond_price(T=1)
+senses[4,3]=Crude_Monte_Carlo(T=1)
+senses[4,4]=Antithetic_variates(T=1)
+senses[4,5]=Moment_Matching(T=1)
+senses[4,6]=Control_Variates_estimate(T=1)
+senses[4,7]=explicit(T=1)
+senses[4,8]=implicit(T=1)
+senses[4,9]=CN(T=1)
+
+#T=10
+senses[5,2]=bond_price(T=10)
+senses[5,3]=Crude_Monte_Carlo(T=10)
+senses[5,4]=Antithetic_variates(T=10)
+senses[5,5]=Moment_Matching(T=10)
+senses[5,6]=Control_Variates_estimate(T=10)
+senses[5,7]=explicit(T=10)
+senses[5,8]=implicit(T=10)
+senses[5,9]=CN(T=10)
+
+#sigma=0.001
+senses[6,2]=bond_price(sigma=0.001)
+senses[6,3]=Crude_Monte_Carlo(sigma=0.001)
+senses[6,4]=Antithetic_variates(sigma=0.001)
+senses[6,5]=Moment_Matching(sigma=0.001)
+senses[6,6]=Control_Variates_estimate(sigma=0.001)
+senses[6,7]=explicit(sigma=0.001)
+senses[6,8]=implicit(sigma=0.001)
+senses[6,9]=CN(sigma=0.001)
+
+
+#sigma=0.01
+senses[7,2]=bond_price(sigma=0.01)
+senses[7,3]=Crude_Monte_Carlo(sigma=0.01)
+senses[7,4]=Antithetic_variates(sigma=0.01)
+senses[7,5]=Moment_Matching(sigma=0.01)
+senses[7,6]=Control_Variates_estimate(sigma=0.01)
+senses[7,7]=explicit(sigma=0.01)
+senses[7,8]=implicit(sigma=0.01)
+senses[7,9]=CN(sigma=0.01)
+
+
+#alpha=0.01
+senses[8,2]=bond_price(alpha=0.01)
+senses[8,3]=Crude_Monte_Carlo(alpha=0.01)
+senses[8,4]=Antithetic_variates(alpha=0.01)
+senses[8,5]=Moment_Matching(alpha=0.01)
+senses[8,6]=Control_Variates_estimate(alpha=0.01)
+senses[8,7]=explicit(alpha=0.01)
+senses[8,8]=implicit(alpha=0.01)
+senses[8,9]=CN(alpha=0.01)
+
+#alpha=0.016
+senses[9,2]=bond_price(alpha=0.016)
+senses[9,3]=Crude_Monte_Carlo(alpha=0.016)
+senses[9,4]=Antithetic_variates(alpha=0.016)
+senses[9,5]=Moment_Matching(alpha=0.016)
+senses[9,6]=Control_Variates_estimate(alpha=0.016)
+senses[9,7]=explicit(alpha=0.016)
+senses[9,8]=implicit(alpha=0.016)
+senses[9,9]=CN(alpha=0.016)
+
+#beta=0.1
+senses[10,2]=bond_price(beta=0.1)
+senses[10,3]=Crude_Monte_Carlo(beta=0.1)
+senses[10,4]=Antithetic_variates(beta=0.1)
+senses[10,5]=Moment_Matching(beta=0.1)
+senses[10,6]=Control_Variates_estimate(beta=0.1)
+senses[10,7]=explicit(beta=0.1)
+senses[10,8]=implicit(beta=0.1)
+senses[10,9]=CN(beta=0.1)
+
+#beta=0.16
+senses[11,2]=bond_price(beta=0.16)
+senses[11,3]=Crude_Monte_Carlo(beta=0.16)
+senses[11,4]=Antithetic_variates(beta=0.16)
+senses[11,5]=Moment_Matching(beta=0.16)
+senses[11,6]=Control_Variates_estimate(beta=0.16)
+senses[11,7]=explicit(beta=0.16)
+senses[11,8]=implicit(beta=0.16)
+senses[11,9]=CN(beta=0.16)
+
+#alpha=0.01,beta=0.1
+senses[12,2]=bond_price(alpha=0.01,beta=0.1)
+senses[12,3]=Crude_Monte_Carlo(alpha=0.01,beta=0.1)
+senses[12,4]=Antithetic_variates(alpha=0.01,beta=0.1)
+senses[12,5]=Moment_Matching(alpha=0.01,beta=0.1)
+senses[12,6]=Control_Variates_estimate(alpha=0.01,beta=0.1)
+senses[12,7]=explicit(alpha=0.01,beta=0.1)
+senses[12,8]=implicit(alpha=0.01,beta=0.1)
+senses[12,9]=CN(alpha=0.01,beta=0.1)
+
+#alpha=0.016,beta=0.16
+senses[13,2]=bond_price(alpha=0.016,beta=0.16)
+senses[13,3]=Crude_Monte_Carlo(alpha=0.016,beta=0.16)
+senses[13,4]=Antithetic_variates(alpha=0.016,beta=0.16)
+senses[13,5]=Moment_Matching(alpha=0.016,beta=0.16)
+senses[13,6]=Control_Variates_estimate(alpha=0.016,beta=0.16)
+senses[13,7]=explicit(alpha=0.016,beta=0.16)
+senses[13,8]=implicit(alpha=0.016,beta=0.16)
+senses[13,9]=CN(alpha=0.016,beta=0.16)
+
+par(mfrow = c(2,2))
+plot(1:8,senses[1,2:9])
+lines(1:8,senses[2, 2:9], col="red", type="l")
+
+```
+
+```{r}
+#Stability
+stables <- matrix(nrow=4, ncol=100) # matrix to hold prices for various parameters
+
+for (i in 1:100){
+  stables[1,i] <- Crude_Monte_Carlo()
+  stables[2,i] <- Antithetic_variates()
+}
+
+for (i in 1:100){
+  stables[3,i] <- Moment_Matching()
+  stables[4,i] <- Control_Variates_estimate()
+}
+
+plot(1:100, stables[1,], type="l", col="blue")
+lines(x=1:100, y=stables[2,], col="red")
+
 ```
 
