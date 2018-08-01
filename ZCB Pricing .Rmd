@@ -53,9 +53,8 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,
   Sum = colSums(sim_path[2:(s+1),]*dt) # Approximate the integral using summation
   int = exp(-Sum) # Take the exponent of the Integral
   mean = mean(int) # Find the average of expression
-  sd = sd(int)/sqrt(n)
-  result = mean
-  result
+  mean
+  
 }
 
 Crude_Monte_Carlo()
@@ -67,14 +66,14 @@ bond_price()
 
 # Antithetic Variates
 
-Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=100000,s=200){
+Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=100){
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path_inv= matrix(0,nrow = s+1, ncol = n)# matrix to generate interest paths using negative values of RV
   sim_path[1,] = r
   sim_path_inv[1,] = r
   z = rnorm(n) # Generate standard normal values
-  z. = -z # Estimate negative value
+  z. = -z # Negative RV
   
   for (i in 1:n){
     for (j in 2:(s+1)){
@@ -91,13 +90,13 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
   Sum.=colSums(sim_path_inv[2:(s+1),]*dt)
   int=exp(-Sum.) #Exponential of the estimate
   int.=exp(-Sum) #Exponential of the estimate under the negative rv 
-  Average=(int+int.)/2   # The average of the expressions is taken for new estimate
-  mean=mean(Average)  # The average of the expression is taken for the estimate
-  sd=sd(Average)/sqrt(n)
-  result= mean
+  mean_1=mean(int) # Estimate using Z_i
+  mean_2=mean(int.)  # Estimate using -Z_i
+  result= (mean_1+mean_2)/2 # Final estimate
   result
   
 }
+
 
 
 
@@ -108,7 +107,7 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
 # Moment matching
 #################################################################################
 
-Moment_Matching=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r0 = 0.08,n=100000,s=100){
+Moment_Matching=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r0 = 0.08,n=1000,s=100){
   
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
@@ -132,10 +131,20 @@ Moment_Matching=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r0 = 0.08,n=100000
   
   Sum=colSums(sim_path[2:(s+1),]*dt)
   int=exp(-Sum)
-  mean=mean(int)
-  sd=sd(int)/sqrt(n)
-  result=mean
+  result=mean(int)
   result
+
+}
+
+
+A=NULL
+B=NULL
+C=NULL
+
+for( i in 1:100){
+  A[i]=Crude_Monte_Carlo()
+  B[i]=Antithetic_variates()
+  C[i]=Moment_Matching()
 }
 
 ```
@@ -157,7 +166,7 @@ bond_price_CIR <- function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08){
 
 # Monte Carlo Simulations of Bond Price under the CIR model
 
-CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=100000,s=200){
+CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=100){
   
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
@@ -174,18 +183,28 @@ CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=100000,s=200){
   # Monte Carlo Simulations
   Sum=colSums(sim_path[2:(s+1),]*dt)
   int=exp(-Sum)
-  mean=mean(int)
-  sd=sd(int)/sqrt(n)
-  result=mean
+  result=mean(int)
   result
   
 }
-bond_price_CIR()
-CIR_MC()
 # Therefore the control variates estimate:
 
 Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08,n=1000,s=100){
   Crude_Monte_Carlo(alpha,beta,sigma,T,r,n,s)[1]- CIR_MC(alpha,beta,sigma,T,r,n,s)[1]+bond_price_CIR(alpha,beta,sigma,t,T,r)
+}
+
+
+
+A=NULL
+B=NULL
+C=NULL
+D=NULL
+
+for (i in 1:100){
+  A[i]=Crude_Monte_Carlo()
+  B[i]=Antithetic_variates()
+  C[i]=Moment_Matching()
+  D[i]=Control_Variates_estimate()
 }
 
 ```
@@ -557,9 +576,9 @@ for (j in 1:10){
        
 ```
 
-<<<<<<< HEAD
-=======
-```{r 12}
+
+
+```{r}
 # Sensitivity Tests
 
 senses <- matrix(nrow=13, ncol=9) # matrix to hold prices for various parameters
@@ -703,6 +722,7 @@ lines(1:8,senses[2, 2:9], col="red", type="l")
 
 ```
 
+
 ```{r}
 #Stability
 stables <- matrix(nrow=4, ncol=100) # matrix to hold prices for various parameters
@@ -722,4 +742,3 @@ lines(x=1:100, y=stables[2,], col="red")
 
 ```
 
->>>>>>> e9e582cf578235fb501d4f55054412de1f3b7f12
