@@ -137,15 +137,7 @@ Moment_Matching=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r0 = 0.08,n=1000,s
 }
 
 
-A=NULL
-B=NULL
-C=NULL
 
-for( i in 1:100){
-  A[i]=Crude_Monte_Carlo()
-  B[i]=Antithetic_variates()
-  C[i]=Moment_Matching()
-}
 
 ```
 
@@ -157,9 +149,9 @@ for( i in 1:100){
 # We have decided to make use of the CIR model as our control variate process.
 # Below is the closed form solution under the CIR model
 bond_price_CIR <- function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08){
-  h <- sqrt(alpha^(2)+2*sigma^(2))
-  A <-(2*h*exp((alpha+h)*(T-t)/2)/(2*h+(alpha+h)*(exp((T-t)*(h))-1)))^((2*alpha*beta)/sigma^(2))
-  B <-2*(exp((T-t)*(h))-1)/(2*h+(alpha+h)*(exp((T-t)*(h))-1))
+  h <- sqrt(beta^(2)+2*sigma^(2))
+  A <-(2*h*exp((beta+h)*(T-t)/2)/(2*h+(beta+h)*(exp((T-t)*(h))-1)))^((2*alpha)/sigma^(2))
+  B <-2*(exp((T-t)*(h))-1)/(2*h+(beta+h)*(exp((T-t)*(h))-1))
   A*exp(-B*r)
 }
 
@@ -174,7 +166,7 @@ CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=100){
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=alpha*(beta-sim_path[j-1,i])*dt+(sigma*sqrt(dt)*rnorm(1)*sqrt(sim_path[j-1,i]))# Euler Discretization
+      dr=(alpha-beta*sim_path[j-1,i])*dt+(sigma*sqrt(dt)*rnorm(1)*sqrt(sim_path[j-1,i]))# Euler Discretization
       sim_path[j,i]=sim_path[j-1,i]+dr
     
     }
@@ -194,19 +186,8 @@ Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r =
 }
 
 
-
-A=NULL
-B=NULL
-C=NULL
-D=NULL
-
-for (i in 1:100){
-  A[i]=Crude_Monte_Carlo()
-  B[i]=Antithetic_variates()
-  C[i]=Moment_Matching()
-  D[i]=Control_Variates_estimate()
-}
-
+bond_price()
+Control_Variates_estimate()
 ```
 
 ```{r}
@@ -216,6 +197,18 @@ for (i in 1:100){
 #################################################################################
 
 # We do this by checking the variance amongst the results when simulated many times.
+
+CR=NULL
+AN=NULL
+MM=NULL
+CV=NULL
+
+for ( i in 1:100){
+  CR[i]=Crude_Monte_Carlo()
+  #AN[i]=Antithetic_variates()
+  #MM[i]=Moment_Matching()
+  CV[i]=Control_Variates_estimate()
+}
 
 
 ```
