@@ -1,0 +1,206 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{natbib}
+\usepackage{url}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{array}
+%\usepackage{appendix}
+\usepackage[british]{babel}
+\bibpunct[:]{(}{)}{;}{a}{,}{,}
+
+%\newcommand{\dd}[1]{\mathrm{d}#1}
+\renewcommand{\baselinestretch}{1.5}
+
+\newcommand{\bi}{\begin{itemize}}
+	\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+	\newcommand{\ee}{\end{enumerate}}
+
+\begin{document}
+	
+	\begin{titlepage}
+		
+		\begin{center}
+			\textbf{{\Large Draft Paper}}\\
+			\vspace{1cm}
+			{\Large Pricing a zero coupon bond by Monte Carlo and Finite Difference Methods when the term structure of interest rates is a mean reverting Ornstein-Uhlenbeck process}\\
+			\vspace{1cm}
+			\today\\
+			Valentine Chisango (CHSVAL002)\\
+			{\tt vmchisango@gmail.com}\\ 
+			
+			George Parekkadavil (PRKMAT004)\\
+			{\tt gparekkadavil@gmail.com}\\
+			
+			Vegan Pather (PTHVEG001)\\
+			\tt {veganpather@gmail.com}
+			
+		\end{center}
+	
+	\begin{abstract}
+		Something interesting in this section
+	\end{abstract}	
+
+	\end{titlepage}
+	\pagenumbering{arabic}
+	\newpage
+	
+	\section{Introduction}
+	\label{sec: Intro}
+	
+	\newpage
+	\section{Background}
+	\label{sec: Backgrd}
+	
+	\newpage
+	\section{Methodology}
+	\label{sec: Method}
+	
+	\newpage
+	\section{Results}
+	\label{sec: Results}
+	
+	\subsection{Comparision of Numerical Methods}
+	\label{subsec: Compar}
+	The methodology was implemented in R under an arbitrary set of parameters, where $\alpha = 0.08$, $\beta = 0.8$ and $\sigma=0.005$. This implied a mean rate of 0.10 under the short rate model and an initial rate of 0.08 was selected. These are annually effective and the time to maturity is 5 years. The Monte Carlo methods were all implemented under 1000 trials and with a partition of 200 subintervals over the time range. The partition of time for the finite difference methods was composed of 1250 equally-spaced subintervals, which is consistent with 250 trading days per year. The discrete set of short rates ranged from -0.4 to 0.6 with a step of 0.005. Table 1 provides the corresponding bond prices for each method under these parameters along with the differences between these prices and the known solution. The approximate time to run each method is provided in seconds.
+	
+	
+	
+\begin{table}[ht]
+	\centering
+	\caption{Comparision of Bond Prices for Numerical Methods}
+	
+	
+	\begin{tabular}{|>{\centering\arraybackslash}m{4.5cm}|>{\centering\arraybackslash}m{2cm}|>{\centering\arraybackslash}m{2cm}|>{\centering\arraybackslash}m{2cm}|>{\centering\arraybackslash}m{2.5cm}|}
+		\hline
+		Numerical Method & Price & Known Price & Error & Computation Time \\ 
+		\hline
+		Crude Monte Carlo & 0.62136 & 0.62164 & 0.00028 & 1.41000 \\ 
+		Antithetic Variates & 0.62826 & 0.62164 & -0.00662 & 1.89000 \\ 
+		Moment Matching & 0.62823 & 0.62164 & -0.00659 & 0.89000 \\ 
+		Control Variates & 0.62244 & 0.62164 & -0.00081 & 2.75000 \\ 
+		Explicit Method & 0.62194 & 0.62164 & -0.00031 & 0.11000 \\ 
+		Implicit Method & 0.62193 & 0.62164 & -0.00030 & 0.14000 \\ 
+		Crank-Nicolson Method & 0.62188 & 0.62164 & -0.00024 & 0.23000 \\ 
+		\hline
+	\end{tabular}
+\end{table}
+	\newpage
+	\section{Discussion}
+	\label{sec: Discuss}
+	
+	\newpage
+	\section{Conclusions}
+	\label{sec : Concl}
+	
+
+	
+	\newpage
+	\bibliographystyle{natbib}
+	\bibliography{myref}	
+	
+	\newpage
+	\appendix
+	\section{Appendix A}
+	\label{sec: Appendix A}
+	\subsection{Details of the Model}
+	\label{subsec: Details}
+	The formulation consists of a zero-coupon bond issued at some time $t \geq 0$ where a corresponding payment of 1 unit will be made at the maturity time $T \geq t$. The risk of default is negligible \citep{shreve2004stochastic}. The bond is priced by using the short rate process $\{r_{s}:t \leq s \leq T\}$.
+	
+	For the time interval $[t,T]$ the filtered probability space $(\Omega, \mathcal{F}^W,\mathbb{F}^W,\mathbb{P})$ is used and $r_t$ is known \citep{mamon2004three}. A risk neutral measure $\mathbb{Q}$ is defined and it is equivalent to $\mathbb{P}$ \citep{shreve2004stochastic}. The short rate process, which is an Ornstein-Uhlenbeck process, then satisfies the following stochastic differential equation: 
+	\begin{equation}
+	dr_{t} = (\alpha-\beta r_{t})dt + \sigma dW_{t} \quad \alpha, \beta \in \mathbb{R}, \sigma>0, \beta \neq 0
+	\end{equation}
+	
+	
+	The bond price $B(t,T,r_t)$ with boundary condition of $B(T,T,r_t) = 1$, is then determined through computing the following risk-neutral expectation:
+	\begin{equation}
+	B(t,T,r_t) = \mathbb{E}^{\mathbb{Q}}\left[exp\left(-\int_{t}^{T}r_{s} ds\right)\middle\vert\mathcal{F}_{t}^{W_{t}}\right]
+	\end{equation}
+	
+	
+	\subsection{The Partial Differential Equation}
+	\label{subsec: PDE}
+	The following expression is the PDE, derived from (2), which is required to obtain the price of a zero-coupon bond when the term structure of interest rates follows the Ornstein-Uhlenbeck process. .
+	$$\boxed{-r_t B(t,T,r_t) + \frac{\partial}{\partial t} B(t,T,r_t) + \frac{\partial}{\partial r_t}B(t,T,r_t)(\alpha - \beta r_t) +\frac{1}{2} \sigma^2 \frac{\partial^2}{\partial r_t^2} B(t,T,r_t) = 0 }$$
+	
+	\noindent This PDE is accompanied by the boundary condition $B(T,T,r_t) = 1$
+	\subsection{The Closed Form Solution}
+	\label{subsec: Closed Form}
+	
+	A closed form solution to the above PDE exists and as per \cite{mamon2004three}, it is given by the following expression:
+	\begin{gather*}
+	\boxed{B(t,T,r_t) =exp(-A(t,T)r_t+D(t,T))}
+	\end{gather*}
+	where
+	\begin{align*}
+	A(t,T)&=\frac{\beta(1-e^{-\beta(T-t)})}{\alpha}\\
+	D(t,T)&=\frac{1}{\beta}\left[\left(\alpha-\frac{\sigma^2}{2\beta}\right)[A(t,T)-(T-t)]-\frac{\sigma^2A(t,T)^2}{4}\right]
+	\end{align*}
+	
+	\newpage
+	\section{Appendix B}
+	\label{sec: Appendix B}
+	\subsection{Monte Carlo Simulation}
+	\label{subsec: MC}
+	The methodology involved in Monte-Carlo simulations are:
+	
+	\begin{itemize}
+		\item Discretize the SDE using a scheme over a time period [0,T]
+		\item Simulate random i.i.d standard normal variables.
+		\item Simulate a path of interest rates using the discretized SDE and the i.i.d standard normal variables.
+		\item Evaluate the integral $e^{-\int_{t}^{T} r(u)du}$ using one simulated path.
+		\item Repeat the evaluation for more paths and take the sample mean as the final estimate of the bond price.
+		
+		The above steps are mentioned in Cairns(2004:185)
+	\end{itemize}
+	
+	
+	
+	\subsubsection{Schurman's Method Under the Vasicek Model}
+	\label{subsubsec: Schurman}
+	
+	Schurman(2009) determined the following formula as the bond price for one interest rate path with fixed parameters.  
+	
+	$$f(h,n)=F\times exp[-\{\frac{1}{2}r_{0}+\sum_{j=1}^{k-1}r_{j} +\frac{1}{2}r_{k}\}h]$$
+	
+	where F is the face value of the bond, h is the time interval, n being the number of the path simulated and $r_{j}$ are the short rate values simulated. Monte Carlo simulations are then run on each path level to determine the price of along that simulated interest rate path. Once N simulations have been completed, the final price is then determined by taking the average of the prices across N simulations.   
+	
+	\subsection{Finite Difference Methods}
+	\label{subsec: FD}
+	A space-time grid (or lattice) is defined by the independent variables of $t$ and $r_t$ \citep{crank}. The interval $[t,T]$ is partitioned into equal sub-intervals with indices of  $n=0,1,...,N$. The range of $r_t$ (which is treated as the space variable) is partitioned with indices of $i = 1,...,I$. The lenght of each $r$ sub-interval is taken as $\Delta r_t$ and the lenght of each $t$ sub-interval is taken as $\Delta t$. The function in the PDE is given by $f(t,r_t)= B(t,T,r_t)$ with boundary condition $f(T,r_t) = 1$ and $r_t$ being known. The algorithm starts at $f(T,r_t)$ works backwards until the solution is reached and this runs over the $(N+1)\times(I+1)$ grid points. At a single gridpoint $(n,i)$, the following approximations are made:
+	\subsubsection{Explicit Method}
+	\label{subsubsec: Explicit}
+	$$\frac{\partial f}{\partial t} = \frac{f(n+1,i) - f(n,i)}{\Delta t}$$
+	$$\frac{\partial f}{\partial r_i} = \frac{f(n+1,i+1) -f(n+1,i-1)}{2 \Delta r_i}$$
+	$$\frac{\partial^2 f}{\partial r_i^2} = \frac{f(n+1,i+1) - 2f(n+1,i) +f(n+1,i-1)}{\Delta r_i^2}$$
+	
+	This is used in the PDE as follows
+	$$-r_i f(n,i)  + \frac{\partial f}{\partial t} + \frac{\partial f}{\partial r_i}(\alpha - \beta r_i) +\frac{1}{2} \sigma^2 \frac{\partial^2 f}{\partial r_i^2}  = 0 $$
+	
+	\subsubsection{Implicit Method}
+	\label{subsubsec: Implicit}
+	$$\frac{\partial f}{\partial t} = \frac{f(n+1,i) - f(n,i)}{\Delta t}$$
+	$$\frac{\partial f}{\partial r_i} = \frac{f(n,i+1) -f(n,i-1)}{2 \Delta r_i}$$
+	$$\frac{\partial^2 f}{\partial r_i^2} = \frac{f(n,i+1) - 2f(n,i) +f(n,i-1)}{\Delta r_i^2}$$
+	
+	This is used in the PDE as follows
+	$$-r_i f(n+1,i)  + \frac{\partial f}{\partial t} + \frac{\partial f}{\partial r_i}(\alpha - \beta r_i) +\frac{1}{2} \sigma^2 \frac{\partial^2 f}{\partial r_i^2}  = 0 $$
+	\subsubsection{Crank-Nicolson Method}
+	\label{subsubsec: Crank Method}
+	
+	$$\frac{\partial f}{\partial t} = \frac{f(n+1,i) - f(n,i)}{\Delta t}$$
+	$$\frac{\partial f}{\partial r_i} = \frac{f(n,i+1) - f(n,i-1) +f(n+1,i+1) -f(n+1,i-1)}{2 \Delta r_i}$$
+	
+	\begin{gather*}
+	\frac{\partial^2 f}{\partial r_i^2} = \frac{f(n,i+1) - 2f(n,i) + f(n,i-1)}{2\Delta r_i^2}
+	+ \frac{f(n+1,i+1) - 2f(n+1,i) +f(n+1,i-1)}{2\Delta r_i^2}
+	\end{gather*}
+	
+	This is used in the PDE as follows
+	$$-\frac{1}{2}r_i f(n,i)-\frac{1}{2} r_i f(n+1,i) + \frac{\partial f}{\partial t} + \frac{\partial f}{\partial r_i}(\alpha - \beta r_i) +\frac{1}{2} \sigma^2 \frac{\partial^2 f}{\partial r_i^2}  = 0 $$
+	
+	The PDE can then be simplified further which results in solving a tridiagonal system of equations \citep{Cairns}.
+		
+		
+\end{document}
