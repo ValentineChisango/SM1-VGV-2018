@@ -710,9 +710,9 @@ senses[13,7]=explicit(alpha=0.016,beta=0.16)
 senses[13,8]=implicit(alpha=0.016,beta=0.16)
 senses[13,9]=CN(alpha=0.016,beta=0.16)
 
-par(mfrow = c(2,2))
-plot(1:8,senses[1,2:9])
-lines(1:8,senses[2, 2:9], col="red", type="l")
+#par(mfrow = c(2,2))
+#plot(1:8,senses[1,2:9])
+#lines(1:8,senses[2, 2:9], col="red", type="l")
 
 ```
 
@@ -737,7 +737,7 @@ for ( i in 1:100){
 
 
 ```{r 13}
-# Convergence Tests
+# Convergence Tests for finite difference methods
 # Varying time steps
 
 time_vec <- seq(0,100,1)
@@ -763,11 +763,56 @@ for (i in 1:length(time_vec)){
   Expl_conv[i] <- explicit(I = 1:time_vec[i])
 }
 
+par(mfrow = c(1,1))
 plot(closed, x = time_vec, type = "l", ylim = c(0.53,0.65), xlab = "Number of time steps", ylab = "Estimated Price")
 lines(x = time_vec, y = CN_conv, type = "l", lty = 2)
 lines(x = time_vec, y = Impl_conv, type = "l", lty = 3, col = "blue")
 lines(x = time_vec, y = Expl_conv, type = "l", lty = 4, col = "red")
 legend(x = 60, y = 0.6, legend = c("Closed Form", "Crank-Nicolson", "Implicit", "Explicit"), lty = 1:4, col = c("black","black","blue", "red"), cex = 0.8)
+
+```
+
+```{r}
+# Covergence tests for Monte Carlo functions
+
+trials_vec <- seq(10,2000,50)
+
+closed_1 <- NULL
+CR_conv <- NULL
+AV_conv <- NULL
+MM_conv <- NULL
+CV_conv <- NULL
+
+for (i in 1:length(trials_vec)){
+  closed_1[i] <- bond_price()
+}
+
+for (i in 1:length(trials_vec)){
+  CR_conv[i] <- Crude_Monte_Carlo(n = trials_vec[i])
+}
+
+for (i in 1:length(trials_vec)){
+  AV_conv[i] <- Antithetic_variates(n = trials_vec[i])
+}
+
+for (i in 1:length(trials_vec)){
+  MM_conv[i] <- Moment_Matching(n = trials_vec[i])
+}
+
+for (i in 1:length(trials_vec)){
+  CV_conv[i] <- Control_Variates_estimate(n = trials_vec[i])
+}
+
+plot(closed_1, x = trials_vec, type = "l",ylim = c(0.61,0.63), xlab = "Number of Trials", ylab = "Estimated Price")
+lines(x = trials_vec, y = CR_conv, type = "l", lty = 2)
+lines(x = trials_vec, y = AV_conv, type = "l", lty = 3, col = "blue")
+lines(x = trials_vec, y = MM_conv, type = "l", lty = 4, col = "red")
+lines(x = trials_vec, y = CV_conv, type = "l", lty = 5, col = "grey")
+
+legend(x = 1500, y = 0.618, legend = c("Closed Form", "Crude", "Antithetic Variates", "Moment Matching","Control Variates"), lty = 1:5, col = c("black","black","blue", "red","grey"), cex = 0.5)
+
+```
+
 
 ```
 
