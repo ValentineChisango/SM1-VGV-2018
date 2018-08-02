@@ -88,7 +88,7 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
     for (j in 2:(s+1)){
       dr = (alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i] # Same Euler Discretization as in the Crude Monte Carlo function
       dr_i = (alpha-beta*sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[i] # Euler Discretization for negative rates
-      sim_path[j,i] =s im_path[j-1,i]+dr
+      sim_path[j,i] =sim_path[j-1,i]+dr
       sim_path_inv[j,i] = sim_path_inv[j-1,i]+dr_i
       
     }
@@ -717,7 +717,7 @@ lines(1:8,senses[2, 2:9], col="red", type="l")
 ```
 
 ```{r 12}
-#Stability
+#Stability Tests
 
 # We do this by checking the variance amongst the results when simulated many times.
 
@@ -734,3 +734,40 @@ for ( i in 1:100){
 }
 
 ```
+
+
+```{r 13}
+# Convergence Tests
+# Varying time steps
+
+time_vec <- seq(0,100,1)
+
+closed <- NULL
+CN_conv <- NULL
+Impl_conv <- NULL
+Expl_conv <- NULL
+
+for (i in 1:length(time_vec)){
+  closed[i] <- bond_price()
+}
+
+for (i in 1:length(time_vec)){
+  CN_conv[i] <- CN(I = 1:time_vec[i])
+}
+
+for (i in 1:length(time_vec)){
+  Impl_conv[i] <- implicit(I = 1:time_vec[i])
+}
+
+for (i in 1:length(time_vec)){
+  Expl_conv[i] <- explicit(I = 1:time_vec[i])
+}
+
+plot(closed, x = time_vec, type = "l", ylim = c(0.53,0.65), xlab = "Number of time steps", ylab = "Estimated Price")
+lines(x = time_vec, y = CN_conv, type = "l", lty = 2)
+lines(x = time_vec, y = Impl_conv, type = "l", lty = 3, col = "blue")
+lines(x = time_vec, y = Expl_conv, type = "l", lty = 4, col = "red")
+legend(x = 60, y = 0.6, legend = c("Closed Form", "Crank-Nicolson", "Implicit", "Explicit"), lty = 1:4, col = c("black","black","blue", "red"), cex = 0.8)
+
+```
+
