@@ -225,8 +225,8 @@ explicit = function(alpha = 0.08,beta = 0.8, sigma = 0.005,r = 0.08, I = 1:1250,
   #Setting up tridiagonal matrix
   
   Diag_1 <- matrix(0,ncol = M, nrow = M)
-    # Main diagonal of matrix 
-    
+  
+  # Filling main diagonal of matrix 
   for (j in 1:M){
     Diag_1[j,j] <- pm(j)
     
@@ -274,7 +274,6 @@ implicit <- function(alpha = 0.08,beta = 0.8,sigma = 0.005,r = 0.08,I = 1:1250, 
   
   dr <- J[2] - J[1] # length of each sub-interval across J
   dt <- T/N # length of each sub-interval across I
-  
   
   # For each j in J we define the following functions at a fixed time point
   
@@ -329,11 +328,6 @@ implicit <- function(alpha = 0.08,beta = 0.8,sigma = 0.005,r = 0.08,I = 1:1250, 
   Bond_values[index]
 }
 
-
-
-
-
-
 ```
 
 ```{r 8}
@@ -349,7 +343,8 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:
   
   dt <- T/N # Length of each time subinterval
   dr <- J[2] -J[1] # Lenght of each rate subinterval
-  #===========================================================================================
+  
+  #========================================================================================
   # Define the following functions for j = 1,...,M at each time point i
   
   pd <- function(j){
@@ -362,20 +357,17 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:
   
   pu <- function(j){
     -(alpha -beta*J[j])/(4*dr) - sigma^2/(4*(dr^2)) 
-  
   }
   
-  
-  #===========================================================================================
+  #========================================================================================
   # Define 2 tridiagonal matricies. One for time point i and one for time point i+1
   
   Diag_1 <- matrix(0,nrow = M,ncol = M)
   Diag_2 <- matrix(0,nrow = M,ncol = M)
   
-  # Main diagonal of matrix 1
+  # Filling main diagonal of matrix 1
   for (j in 1:M){
     Diag_1[j,j] <- -1/dt - pm(j)
-    
   }
   
   # Filling lower diagonal of matrix 1
@@ -389,7 +381,7 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:
   }  
   
   
-  # Main diagonal of matrix 2
+  # Filling main diagonal of matrix 2
   for (j in 1:M){
     Diag_2[j,j] <- -1/dt + pm(j)
     }
@@ -405,7 +397,7 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:
   }
   
   
-  #===========================================================================================
+  #========================================================================================
   # Constructing more matricies and iterating the procedure from maturity to time 0
 
   Bond_values <- matrix(1,nrow = M, ncol = 1)
@@ -430,10 +422,6 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:
   # Output corresponding to desired short rate
   Bond_values[index]
 }
-
-
-
-
 
 ```
 
@@ -563,9 +551,6 @@ start_time <- proc.time()[1]
 compare_mat[7,1] <- CN()
 compare_mat[7,4] <- proc.time()[1] - start_time
 compare_mat[7,3] <- compare_mat[7,2] - compare_mat[7,1]
-
-
-
 
 # library(knitr)
 # kable(compare_mat,align = "c")
@@ -772,7 +757,54 @@ legend(x = 60, y = 0.6, legend = c("Closed Form", "Crank-Nicolson", "Implicit", 
 
 ```
 
-```{r}
+
+
+
+```{r 14}
+# Convergence Tests for finite difference methods
+# Varying rate steps
+
+# rate_step <- c(0.02,0.016,0.012,0.010,0.008,0.006,0.005,0.004,0.003,0.002)
+# rate_vec <- NULL
+# for (i in 1:length(rate_step)){
+#   rate_vec[i] <- length(seq(-0.4,0.6,rate_step[i])) 
+# }
+# 
+# 
+# closed_r <- NULL
+# CN_conv_1 <- NULL
+# Impl_conv_1 <- NULL
+# Expl_conv_1 <- NULL
+# 
+# 
+# 
+# for (i in 1:length(rate_step)){
+#   closed_r[i] <- bond_price()
+# }
+# 
+# for (i in 1:length(rate_step)){
+#   CN_conv_1[i] <- CN(J = seq(-0.4,0.6,rate_step[i]))
+# }
+# 
+# for (i in 1:length(rate_step)){
+#   Impl_conv_1[i] <- implicit(J = seq(-0.4,0.6,rate_step[i]))
+# }
+# 
+# for (i in 1:length(rate_step)){
+#   Expl_conv_1[i] <- explicit(J = seq(-0.4,0.6,rate_step[i]))
+# }
+# 
+# par(mfrow = c(1,1))
+# plot(closed_r, x = rate_vec, type = "l", xlab = "Number of time steps", ylab = "Estimated Price")
+# lines(x = rate_vec, y = CN_conv_1, type = "l", lty = 2)
+# lines(x = rate_vec, y = Impl_conv_1, type = "l", lty = 3, col = "blue")
+# lines(x = rate_vec, y = Expl_conv_1, type = "l", lty = 4, col = "red")
+# legend(x = 60, y = 0.6, legend = c("Closed Form", "Crank-Nicolson", "Implicit", "Explicit"), lty = 1:4, col = c("black","black","blue", "red"), cex = 0.8)
+
+```
+
+
+```{r 15}
 # Covergence tests for Monte Carlo functions
 
 trials_vec <- seq(10,2000,50)
