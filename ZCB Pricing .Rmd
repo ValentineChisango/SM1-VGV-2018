@@ -124,7 +124,7 @@ Moment_Matching = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5,r = 0.
   #Simulate interest rates
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
-  sim_path[1,]= r0
+  sim_path[1,]= r
   z=rnorm(n)
   z_m= z-mean(z) # Moment matching transformation of RV to match finite moments 
   
