@@ -85,6 +85,12 @@
 		\hline
 	\end{tabular}
 \end{table}
+newpage
+\subsection{Sensitivity tests}
+\label{subsec: Senses}
+In order to confirm that the behaviour of the numerical methods is as expected under different parameters, several different parameter values are tested. The initial set of parameters are those used in section \ref{sec : Compar}. From here the input parameters are varied one at time, with $\alpha$ and $\beta$ varied together in the final two scenarios tested. For each parameter varied, the bond price produced by each numerical method under the chosen scenarios is plotted along with the bond price produced by the closed form solution.\\\\
+In varying the interest rate from the initial $8\%$, all methods behave as expected. When the interest rate is reduced to $5\%$, the bond price decreases. When the interest rate is raised to $10\%$, the bond price increases.	Varying the time to maturity ($T$) from the initial $5$ years also results in the expected behaviour: bond prices increase when $T=1$ and decrease when $T=10$. However, the bond price produced by the explicit method decreases significantly and is in fact negative. This is caused by [missing].\\\\
+All the methods behave normally when the standard deviation is increase from the initial $0.5\%$ to $1\%$. When the standard deviation is decreases to $0.1\%$, the Monte-Carlo methods produce slightly lower bond prices while the finite differences produce bond prices in excess of 2. This highlight the flaw in finite difference methods in that they produce very large prices, that don't make financial sense since they exceed the pay-off of the bond, when the standard deviation is sufficiently small and almost vanishes from the partial differential equation from which the tridiagonal matrices used for the methods are created.
 	\newpage
 	\section{Discussion}
 	\label{sec: Discuss}
