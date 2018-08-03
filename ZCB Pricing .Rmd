@@ -695,9 +695,11 @@ senses[13,7]=explicit(alpha=0.016,beta=0.16)
 senses[13,8]=implicit(alpha=0.016,beta=0.16)
 senses[13,9]=CN(alpha=0.016,beta=0.16)
 
-#par(mfrow = c(2,2))
-#plot(1:8,senses[1,2:9])
-#lines(1:8,senses[2, 2:9], col="red", type="l")
+par(mfrow = c(2,2))
+first <- as.vector(senses[1,2:9])
+plot(1:8,first)
+test <- as.vector(senses[2, 2:9])
+lines(1:8,test, col="red", type="l")
 
 ```
 
