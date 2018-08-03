@@ -552,8 +552,8 @@ compare_mat[7,1] <- CN()
 compare_mat[7,4] <- proc.time()[1] - start_time
 compare_mat[7,3] <- compare_mat[7,2] - compare_mat[7,1]
 
-# library(knitr)
-# kable(compare_mat,align = "c")
+library(xtable)
+xtable(compare_mat, digits = 5)
        
 ```
 
