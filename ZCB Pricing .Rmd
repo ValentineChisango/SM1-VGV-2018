@@ -697,10 +697,10 @@ senses[13,9]=CN(alpha=0.016,beta=0.16)
 
 par(mfrow = c(2,2))
 first <- as.vector(senses[1,2:9])
-plot(1:8,first)
+plot(1:8,first, ylim =c(0.58,0.66))
 test <- as.vector(senses[2, 2:9])
-lines(1:8,test, col="red", type="l")
-
+lines(1:8, test, col="red")
+lines(1:8, senses[3,2:9],col ="blue")
 ```
 
 ```{r 12}
@@ -751,11 +751,11 @@ for (i in 1:length(time_vec)){
 }
 
 par(mfrow = c(1,1))
-plot(closed, x = time_vec, type = "l", ylim = c(0.53,0.65), xlab = "Number of time steps", ylab = "Estimated Price")
-lines(x = time_vec, y = CN_conv, type = "l", lty = 2)
-lines(x = time_vec, y = Impl_conv, type = "l", lty = 3, col = "blue")
-lines(x = time_vec, y = Expl_conv, type = "l", lty = 4, col = "red")
-legend(x = 60, y = 0.6, legend = c("Closed Form", "Crank-Nicolson", "Implicit", "Explicit"), lty = 1:4, col = c("black","black","blue", "red"), cex = 0.8)
+plot(closed, x = time_vec, type = "l", ylim = c(0.53,0.65), xlab = "Number of time steps", ylab = "Estimated Price" , lty =1, font.main = 1, main = "Finite Difference Bond Prices as Time Steps Increase")
+lines(x = time_vec, y = CN_conv, type = "l", lty = 2, lwd =1.5)
+lines(x = time_vec, y = Impl_conv, type = "l", lty = 2, col = "blue",lwd =1.5)
+lines(x = time_vec, y = Expl_conv, type = "l", lty = 2, col = "red",lwd =1.5)
+legend(x = 60, y = 0.6, legend = c("Closed Form", "Crank-Nicolson", "Implicit", "Explicit"), lty = c(1,2,2,2), col = c("black","black","blue", "red"), cex = 0.8, bty ="n")
 
 ```
 
@@ -837,16 +837,17 @@ for (i in 1:length(trials_vec)){
   CV_conv[i] <- Control_Variates_estimate(n = trials_vec[i])
 }
 
-plot(closed_1, x = trials_vec, type = "l",ylim = c(0.61,0.63), xlab = "Number of Trials", ylab = "Estimated Price")
-lines(x = trials_vec, y = CR_conv, type = "l", lty = 2)
-lines(x = trials_vec, y = AV_conv, type = "l", lty = 3, col = "blue")
-lines(x = trials_vec, y = MM_conv, type = "l", lty = 4, col = "red")
-lines(x = trials_vec, y = CV_conv, type = "l", lty = 5, col = "grey")
+plot(closed_1, x = trials_vec, type = "l",ylim = c(0.61,0.63), xlab = "Number of Trials", ylab = "Estimated Price", lty = 2, lwd = 2,font.main = 1, main = "Monte Carlo Bond Prices over Number of Trials")
+lines(x = trials_vec, y = CR_conv, type = "l", lty = 1, lwd =1.5)
+lines(x = trials_vec, y = AV_conv, type = "l", lty = 1, col = "blue", lwd =1.5)
+lines(x = trials_vec, y = MM_conv, type = "l", lty = 1, col = "green", lwd =1.5)
+lines(x = trials_vec, y = CV_conv, type = "l", lty = 1, col = "red", lwd = 2)
 
-legend(x = 1500, y = 0.618, legend = c("Closed Form", "Crude", "Antithetic Variates", "Moment Matching","Control Variates"), lty = 1:5, col = c("black","black","blue", "red","grey"), cex = 0.5)
+legend(x = 600, y = 0.62, legend = c("Closed Form", "Crude Monte Carlo", "Antithetic Variates"), lty = c(2,1,1), lwd =c(1.5,1.5,1.5),col = c("black","black","blue"), cex = 0.8, bty="n")
+
+legend(x = 1200, y = 0.62, legend = c("Moment Matching","Control Variates"), lty = c(1,1), lwd =c(1.5,1.5),col = c("green","red"), cex = 0.8, bty="n")
 
 ```
 
 
-```
 
