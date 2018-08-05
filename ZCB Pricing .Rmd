@@ -247,6 +247,10 @@ explicit = function(alpha = 0.08,beta = 0.8, sigma = 0.005,r = 0.08, I = 1:1250,
   
   # Working backwards in time
   for (i in 1:(length(I)+1)){
+    C <- matrix(0,ncol = 1, nrow = M) # Another matrix for boundary conditions
+    C[M,1] <- (pu(M))*Bond_values[M,1]
+    C[1,1] <- pd(1)*Bond_values[1,1]
+    
     Bond_values <- Diag_1%*%Bond_values
     Bond_values <- Bond_values
   }
@@ -316,9 +320,9 @@ implicit <- function(alpha = 0.08,beta = 0.8,sigma = 0.005,r = 0.08,I = 1:1250, 
   for (i in 1:(length(I) +1)){
     C <- matrix(0,ncol = 1, nrow = M) # Another matrix for boundary conditions
     C[M,1] <- (-pu(M))*Bond_values[M,1]
-    C[1,1] <- -pd(1)
+    C[1,1] <- -pd(1)*Bond_values[1,1]
 
-    RHS <- Bond_values  # Working backwards recursively 
+    RHS <- Bond_values + C # Working backwards recursively 
     Bond_values <- Inv%*%RHS
   }
 
@@ -402,18 +406,18 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:
 
   Bond_values <- matrix(1,nrow = M, ncol = 1)
   
-  # C_1 <- matrix(0,nrow = M,ncol = 1)
-  # C_1[1,1] <- -2*pd(1)
-  # C_1[M,1] <- -2*pu(M)
-  # 
+ 
+
   # C_2 <- matrix(0,nrow = M,ncol = 1)
   # C_2[1,1] <- pd(1)
   # C_2[M,1] <- pu(M)
   Inv <- solve(Diag_1)
   
   for (i in 1:(length(I)+1)){
-    
-    RHS <- Diag_2%*%Bond_values 
+    C_1 <- matrix(0,nrow = M,ncol = 1)
+    C_1[1,1] <- pd(1)*Bond_values[1,1]
+    C_1[M,1] <- pu(M)*Bond_values[M,1]
+    RHS <- Diag_2%*%Bond_values +2*C_1
     Bond_values <- Inv%*%RHS
   }
 
@@ -475,7 +479,7 @@ lines(xvec, CV, col ="green", lty =1.5)
 # Plots of Finite Difference Methods ----------------------------------------------------------------------
 
 for (i in 1: length(xvec)){
-  Expl[i] <- explicit(r = xvec[i])
+  Expl[i] <- explicit(r = xvec[i], I = 1:10000)
 }
 
 for (i in 1: length(xvec)){
