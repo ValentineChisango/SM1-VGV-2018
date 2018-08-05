@@ -566,6 +566,7 @@ xtable(compare_mat, digits = 5)
 
 senses <- matrix(nrow=13, ncol=9) # matrix to hold prices for various parameters
 colnames(senses) <-c("Parameters","Closed Form","Crude Monte Carlo","Antithetic Variates","Moment Matching","Control Variates","Explicit","Implicit","Crank-Nicholson")
+#xvec=c(Closed Form,Crude Monte Carlo,Antithetic Variates,Moment Matching,Control Variates,Explicit,Implicit,Crank Nicholson) #list of numerical methods
 
 #Initial Parameters
 senses[1,2]=bond_price()
@@ -649,15 +650,15 @@ senses[8,7]=explicit(alpha=0.01)
 senses[8,8]=implicit(alpha=0.01)
 senses[8,9]=CN(alpha=0.01)
 
-#alpha=0.016
-senses[9,2]=bond_price(alpha=0.016)
-senses[9,3]=Crude_Monte_Carlo(alpha=0.016)
-senses[9,4]=Antithetic_variates(alpha=0.016)
-senses[9,5]=Moment_Matching(alpha=0.016)
-senses[9,6]=Control_Variates_estimate(alpha=0.016)
-senses[9,7]=explicit(alpha=0.016)
-senses[9,8]=implicit(alpha=0.016)
-senses[9,9]=CN(alpha=0.016)
+#alpha=0.16
+senses[9,2]=bond_price(alpha=0.16)
+senses[9,3]=Crude_Monte_Carlo(alpha=0.16)
+senses[9,4]=Antithetic_variates(alpha=0.16)
+senses[9,5]=Moment_Matching(alpha=0.16)
+senses[9,6]=Control_Variates_estimate(alpha=0.16)
+senses[9,7]=explicit(alpha=0.16)
+senses[9,8]=implicit(alpha=0.16)
+senses[9,9]=CN(alpha=0.16)
 
 #beta=0.1
 senses[10,2]=bond_price(beta=0.1)
@@ -669,15 +670,15 @@ senses[10,7]=explicit(beta=0.1)
 senses[10,8]=implicit(beta=0.1)
 senses[10,9]=CN(beta=0.1)
 
-#beta=0.16
-senses[11,2]=bond_price(beta=0.16)
-senses[11,3]=Crude_Monte_Carlo(beta=0.16)
-senses[11,4]=Antithetic_variates(beta=0.16)
-senses[11,5]=Moment_Matching(beta=0.16)
-senses[11,6]=Control_Variates_estimate(beta=0.16)
-senses[11,7]=explicit(beta=0.16)
-senses[11,8]=implicit(beta=0.16)
-senses[11,9]=CN(beta=0.16)
+#beta=1.6
+senses[11,2]=bond_price(beta=1.6)
+senses[11,3]=Crude_Monte_Carlo(beta=1.6)
+senses[11,4]=Antithetic_variates(beta=1.6)
+senses[11,5]=Moment_Matching(beta=1.6)
+senses[11,6]=Control_Variates_estimate(beta=1.6)
+senses[11,7]=explicit(beta=1.6)
+senses[11,8]=implicit(beta=1.6)
+senses[11,9]=CN(beta=1.6)
 
 #alpha=0.01,beta=0.1
 senses[12,2]=bond_price(alpha=0.01,beta=0.1)
@@ -689,22 +690,52 @@ senses[12,7]=explicit(alpha=0.01,beta=0.1)
 senses[12,8]=implicit(alpha=0.01,beta=0.1)
 senses[12,9]=CN(alpha=0.01,beta=0.1)
 
-#alpha=0.016,beta=0.16
-senses[13,2]=bond_price(alpha=0.016,beta=0.16)
-senses[13,3]=Crude_Monte_Carlo(alpha=0.016,beta=0.16)
-senses[13,4]=Antithetic_variates(alpha=0.016,beta=0.16)
-senses[13,5]=Moment_Matching(alpha=0.016,beta=0.16)
-senses[13,6]=Control_Variates_estimate(alpha=0.016,beta=0.16)
-senses[13,7]=explicit(alpha=0.016,beta=0.16)
-senses[13,8]=implicit(alpha=0.016,beta=0.16)
-senses[13,9]=CN(alpha=0.016,beta=0.16)
+#alpha=0.16,beta=1.6
+senses[13,2]=bond_price(alpha=0.16,beta=1.6)
+senses[13,3]=Crude_Monte_Carlo(alpha=0.16,beta=1.6)
+senses[13,4]=Antithetic_variates(alpha=0.16,beta=1.6)
+senses[13,5]=Moment_Matching(alpha=0.16,beta=1.6)
+senses[13,6]=Control_Variates_estimate(alpha=0.16,beta=1.6)
+senses[13,7]=explicit(alpha=0.16,beta=1.6)
+senses[13,8]=implicit(alpha=0.16,beta=1.6)
+senses[13,9]=CN(alpha=0.16,beta=1.6)
 
-par(mfrow = c(2,2))
-first <- as.vector(senses[1,2:9])
-plot(1:8,first, ylim =c(0.58,0.66))
-test <- as.vector(senses[2, 2:9])
-lines(1:8, test, col="red")
-lines(1:8, senses[3,2:9],col ="blue")
+par(mfrow=c(1,1))
+plot(x=1:8,y=senses[1,2:9], ylim =c(0.58,0.66), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Interest Rate")
+#axis(1, at=1:8, labels=xvec)
+lines(1:8, senses[2,2:9], col="red",type = "p")
+lines(1:8, senses[3,2:9],col ="blue",type = "p")
+legend("bottomright", inset = c(-0,0), legend = c("r=0.05", "r=0.08", "r=0.1"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n")
+
+plot(x=1:8,y=senses[1,2:9], ylim =c(0,2.2), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Time to maturity")
+#axis(1, at=1:8, labels=xvec)
+lines(1:8, senses[4,2:9], col="red",type = "p")
+lines(1:8, senses[5,2:9],col ="blue",type = "p")
+legend("topright", inset = c(-0,0), legend = c("T=1", "T=5", "T=10"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n")
+
+plot(x=1:8,y=senses[1,2:9], ylim =c(0,2.2), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Sigma")
+#axis(1, at=1:8, labels=xvec)
+lines(1:8, senses[6,2:9], col="red",type = "p")
+lines(1:8, senses[7,2:9],col ="blue",type = "p")
+legend("bottomright", inset = c(-0,0), legend = c("sigma=0.001", "sigma=0.005", "sigma=0.1"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n")
+
+plot(x=1:8,y=senses[1,2:9], ylim =c(0,2.2), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Alpha")
+#axis(1, at=1:8, labels=xvec)
+lines(1:8, senses[8,2:9], col="red",type = "p")
+lines(1:8, senses[9,2:9],col ="blue",type = "p")
+legend("bottomright", inset = c(-0,0), legend = c("alpha=0.01", "alpha=0.08", "alpha=0.16"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n")
+
+plot(x=1:8,y=senses[1,2:9], ylim =c(0,2.2), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Beta")
+#axis(1, at=1:8, labels=xvec)
+lines(1:8, senses[10,2:9], col="red",type = "p")
+lines(1:8, senses[11,2:9],col ="blue",type = "p")
+legend("topright", inset = c(-0,0), legend = c("beta=0.1", "beta=0.8", "beta=1.6"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n")
+
+plot(x=1:8,y=senses[1,2:9], ylim =c(0,2.2), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Alpha & Beta")
+#axis(1, at=1:8, labels=xvec)
+lines(1:8, senses[12,2:9], col="red",type = "p")
+lines(1:8, senses[13,2:9],col ="blue",type = "p")
+legend("topright", inset = c(-0,0), legend = c("alpha=0.01,beta=0.1", "alpha=0.08,beta=0.8", "alpha=0.16,beta=1.6"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n")
 ```
 
 ```{r 12}
