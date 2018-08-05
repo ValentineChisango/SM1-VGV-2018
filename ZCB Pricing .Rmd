@@ -191,6 +191,8 @@ Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r =
 
 ```
 
+
+
 ```{r 6}
 # Explicit Method
 
@@ -745,8 +747,8 @@ CV = NULL
 
 for ( i in 1:100){
   CR[i]=Crude_Monte_Carlo()
-  #AN[i]=Antithetic_variates()
-  #MM[i]=Moment_Matching()
+  AN[i]=Antithetic_variates()
+  MM[i]=Moment_Matching()
   CV[i]=Control_Variates_estimate()
 }
 
