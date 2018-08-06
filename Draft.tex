@@ -145,7 +145,7 @@ The bond prices are solved for by matrix formulation.
 
 After discretizing the PDE and grouping the similar terms we arrive at the following equation.  
 
-$$B_{i-1,j}=pu_{j}B_{i,j-1}+pm_{j}B_{i,j}+pd_{j}B_{i,j+1}$$ 
+$$B_{i-1,j}=p_u(j)B_{i,j-1}+p_m(j)B_{i,j}+p_d(j)B_{i,j+1}$$ 
 
 where i= 0,....,T \\
       j= $r_0,r_1,....r_n$
@@ -153,9 +153,9 @@ where i= 0,....,T \\
 First we substitute the boundary values into $B_{i,j-1}, B_{i,j}, B{i,j+1}$ and work backwards to calculate the value at point $B_{i-1,j}$ and repeat the process at each point until time t to get the estimates of the prices for varying interest rates $r_0,r_1,...r_n$ 
 
 Note that:       
-$$pu_{j}=(r_j/\Delta t)^{-1}(\frac{\sigma^{2}}{2(\Delta r_j)^{2}}+\frac{\alpha-\beta r_j}{2\Delta r_j})$$
-$$pm_{j}=(r_j/\Delta t)^{-1}(\frac{1}{\Delta t}-\frac{\sigma^2}{\Delta r_j}^{2})$$
-$$pd_{j}=(r_j/\Delta t)^{-1}(\frac{\sigma^{2}}{2(\Delta r_j)^{2}}+\frac{\alpha-\beta r_j}{2\Delta r_j})$$
+$$p_u(j)=(r_j/\Delta t)^{-1}(\frac{\sigma^{2}}{2(\Delta r_j)^{2}}+\frac{\alpha-\beta r_j}{2\Delta r_j})$$
+$$p_m(j)=(r_j/\Delta t)^{-1}(\frac{1}{\Delta t}-\frac{\sigma^2}{\Delta r_j}^{2})$$
+$$p_d(j)=(r_j/\Delta t)^{-1}(\frac{\sigma^{2}}{2(\Delta r_j)^{2}}+\frac{\alpha-\beta r_j}{2\Delta r_j})$$
 
 Under the matrix formulation we have the equation to be:
 
@@ -167,11 +167,11 @@ $$\begin{bmatrix}
 	\end{bmatrix}
 =
 \left( \begin{array}{cccccc}
-pm_{1} & pd_{1} & 0 & \cdots  & 0 & 0\\
-pu_{2} & pm_{2} & pd_{2} &\cdots & 0 & 0 \\
-& pu_{3} & pm_{3} & \cdots & 0 & 0  \\
+p_m(1) & p_d(1) & 0 & \cdots  & 0 & 0\\
+p_u(2) & p_m(2) & p_d(2) &\cdots & 0 & 0 \\
+& p_u(3) & p_m(3) & \cdots & 0 & 0  \\
 & \vdots &\vdots & \ddots & \vdots & \vdots \\ 
-& 0 & 0 & \cdots & pu_{n-1} & pm_{n-1} \end{array} \right) 
+& 0 & 0 & \cdots & p_u(n-1) & p_m(n-1) \end{array} \right) 
 %
 \begin{bmatrix}
 	B_{i,1} \\
@@ -181,11 +181,11 @@ pu_{2} & pm_{2} & pd_{2} &\cdots & 0 & 0 \\
 \end{bmatrix}
 +
  \begin{bmatrix}
-	pu_{1}B_{i,0} \\
+	p_u(1)B_{i,0} \\
 	0 \\
 	\vdots \\
 	0 \\
-	pd_{j-1}B_{i,n-1}
+	p_d(j-1)B_{i,n-1}
 	\end{bmatrix}  
 $$
  
@@ -195,25 +195,25 @@ $$
 
 Under this case , once the dicretizationa and grouping of terms occur , we obtain
 
-$$B_{i+1,j}= pu_{j}B_{i,j-1}+pm_{j}B_{i,j}+pd_{j}B{i,j+1} $$
+$$B_{i+1,j}= p_u(j)B_{i,j-1}+p_m(j)B_{i,j}+p_d(j)B{i,j+1} $$
 
 In this case the value at $B_{i+1,j}$ is used to work out the other 3 values. This can be solved simultaneously as when all the equations are written down, there are equal number of equations as to unknowns.
 
 
 Under this case
 
-$$pu_{j}= (\frac{\alpha-\beta r_{j+1}}{2\Delta r} - \frac{\sigma^2}{2\Delta r^2})\Delta t$$ 
-$$pm_{j}= (r_{j+1}+\frac{1}{\Delta t} + \frac{\sigma^2}{\Delta r ^2})\Delta t$$
-$$pd_{j}= (\frac{\alpha-\beta r_{j+1}}{2\Delta r} + \frac{\sigma^2}{2\Delta r^2})(-\Delta t) $$
+$$p_u(j)= (\frac{\alpha-\beta r_{j+1}}{2\Delta r} - \frac{\sigma^2}{2\Delta r^2})\Delta t$$ 
+$$p_m(j)= (r_{j+1}+\frac{1}{\Delta t} + \frac{\sigma^2}{\Delta r ^2})\Delta t$$
+$$p_d(j)= (\frac{\alpha-\beta r_{j+1}}{2\Delta r} + \frac{\sigma^2}{2\Delta r^2})(-\Delta t) $$
 
 The matrix formulation is:
 
 $$\left( \begin{array}{cccccc}
-pm_{1} & pd_{1} & 0 & \cdots  & 0 & 0\\
-pu_{2} & pm_{2} & pd_{2} &\cdots & 0 & 0 \\
-& pu_{3} & pm_{3} & \cdots & 0 & 0  \\
+p_m(1) & p_d(1) & 0 & \cdots  & 0 & 0\\
+p_u(2) & p_m(2) & p_d(2) &\cdots & 0 & 0 \\
+& p_u(3) & p_m(3) & \cdots & 0 & 0  \\
 & \vdots &\vdots & \ddots & \vdots & \vdots \\ 
-& 0 & 0 & \cdots & pd_{n-1} & pm_{n-1} \end{array} \right)
+& 0 & 0 & \cdots & p_d(n-1) & p_m(n-1) \end{array} \right)
 %
 \begin{bmatrix}
 B_{i,1} \\
@@ -230,11 +230,11 @@ B_{i+1,r_{n-1}}
 \end{bmatrix}
 +
 \begin{bmatrix}
--pu_{1}B_{i,0} \\
+-p_u(1)B_{i,0} \\
 0 \\
 \vdots \\
 0 \\
--pd_{j-1}B_{i, r_{n-1}}
+-p_d(j-1)B_{i, r_{n-1}}
 \end{bmatrix}
 $$
 
@@ -243,57 +243,31 @@ $$
 
 This method involves making use of $B_{i,j+1}$, $B_{i,j}$ and $B_{i,j-1}$ to evaluate the prices at $B_{i-11,j+1}$, $B_{i-1,j}$ and $B_{i-1,j-1}$. 
 
-$$pu_{j}=\frac{\alpha-\beta r_{j+1}}{4\Delta r} - \frac{\sigma^2}{4\Delta r^2}$$
-$$pm_{j}= \frac{\sigma^2}{2 (\Delta r)^2}+\frac{r_{j}}{2}$$
-$$pd_{j}=-\frac{\alpha-\beta r_{j+1}}{4\Delta r} - \frac{\sigma^2}{4\Delta r^2}$$
+$$p_u(j)=\frac{\alpha-\beta r_{j+1}}{4\Delta r} - \frac{\sigma^2}{4\Delta r^2}$$
+$$p_m(j)= \frac{\sigma^2}{2 (\Delta r)^2}+\frac{r_{j}}{2}$$
+$$p_d(j)=-\frac{\alpha-\beta r_{j+1}}{4\Delta r} - \frac{\sigma^2}{4\Delta r^2}$$
 
 The matrix formulation under this method is:
 
-$$ \left( \begin{array}{cccccc}
--(1/\Delta t)-pm_{1} & -pd_{1} & 0 & \cdots  & 0 & 0\\
--pu_{2} & -(1/\Delta t)-pm_{2} & -pd_{2} &\cdots & 0 & 0 \\
-& -pu_{3} & -(1/\Delta t)-pm_{3} & \cdots & 0 & 0  \\
+$$AB_{i-1}=CB_{i}+F_{i-1}+F_{i}$$
+
+
+$$A= \left( \begin{array}{cccccc}
+-(1/\Delta t)-p_m(1) & -p_d(1) & 0 & \cdots  & 0 & 0\\
+-p_u(2) & -(1/\Delta t)-p_m(2) & -p_d(2) &\cdots & 0 & 0 \\
+& -p_u(3) & -(1/\Delta t)-p_m(3) & \cdots & 0 & 0  \\
 & \vdots &\vdots & \ddots & \vdots & \vdots \\ 
-& 0 & 0 & \cdots & -pu_{n-1} & -(1/\Delta t)-pm_{n-1} \end{array} \right)
-%
-\begin{bmatrix}
-B_{i-1,1} \\
-B_{i-1,2} \\
-\vdots \\
-B_{i-1,n-1}
-\end{bmatrix} 
-\\
-=
-\left( \begin{array}{cccccc}
--(1/\Delta t)+pm_{1} & pd_{1} & 0 & \cdots  & 0 & 0\\
-pu_{2} & -(1/\Delta t)+pm_{2} & pd_{2} &\cdots & 0 & 0 \\
-& pu_{3} & 1+b_{3} & \cdots & 0 & 0  \\
-& \vdots &\vdots & \ddots & \vdots & \vdots \\ 
-& 0 & 0 & \cdots & -pu_{n-1} & -(1/\Delta t+pm_{n-1} \end{array} \right) 
-%
-\begin{bmatrix}
-B_{i,1} \\
-B_{i,2} \\
-\vdots \\
-B_{i,n-1}
-\end{bmatrix}
-+
-\begin{bmatrix}
-pu_{1}B_{i-1,0} \\
-0 \\
-\vdots \\
-0 \\
-pd_{j-1}B_{i-1,n-1}
-\end{bmatrix}
-+
- \begin{bmatrix}
-pu_{1}B_{i,0} \\
-0 \\
-\vdots \\
-0 \\
-pd_{j-1}B_{i,n-1}
-\end{bmatrix}  
+& 0 & 0 & \cdots & -p_u(n-1) & -(1/\Delta t)-p_m(n-1) \end{array} \right)
 $$
+
+$$C=\left( \begin{array}{cccccc}
+-(1/\Delta t)+p_m(1) & p_d(1) & 0 & \cdots  & 0 & 0\\
+p_u(2) & -(1/\Delta t)+p_m(2) & p_d(2) &\cdots & 0 & 0 \\
+& p_u(3) & 1+b_{3} & \cdots & 0 & 0  \\
+& \vdots &\vdots & \ddots & \vdots & \vdots \\ 
+& 0 & 0 & \cdots & -p_u(n-1) & -(1/\Delta t+p_m(n-1) \end{array} \right) 
+$$
+
 
 
 \newpage
