@@ -246,7 +246,7 @@ explicit = function(alpha = 0.08,beta = 0.8, sigma = 0.005,r = 0.08, I = 1:1250,
   Bond_values <- matrix(1,nrow=M, ncol =1)
   
   # Working backwards in time
-  for (i in 1:(length(I)+1)){
+  for (i in 1:(length(I))){
     C <- matrix(0,ncol = 1, nrow = M) # Another matrix for boundary conditions
     C[M,1] <- (pu(M))*Bond_values[M,1]
     C[1,1] <- pd(1)*Bond_values[1,1]
@@ -267,6 +267,7 @@ explicit = function(alpha = 0.08,beta = 0.8, sigma = 0.005,r = 0.08, I = 1:1250,
 
 ```{r 7}
 # Implicit Method
+
 
 implicit <- function(alpha = 0.08,beta = 0.8,sigma = 0.005,r = 0.08,I = 1:1250, J =seq(-0.4,0.6,0.005),T=5){
   
@@ -317,7 +318,7 @@ implicit <- function(alpha = 0.08,beta = 0.8,sigma = 0.005,r = 0.08,I = 1:1250, 
   Bond_values <- matrix(1,ncol = 1,nrow = M) # The matrix of bond prices at maturity time 
   Inv <- solve(Diag) # Inverse of tridiagonal matrix
   
-  for (i in 1:(length(I) +1)){
+  for (i in 1:(length(I))){
     C <- matrix(0,ncol = 1, nrow = M) # Another matrix for boundary conditions
     C[M,1] <- (-pu(M))*Bond_values[M,1]
     C[1,1] <- -pd(1)*Bond_values[1,1]
@@ -336,6 +337,7 @@ implicit <- function(alpha = 0.08,beta = 0.8,sigma = 0.005,r = 0.08,I = 1:1250, 
 
 ```{r 8}
 # Crank-Nicholson Method
+
 
 CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:1250, J = seq(-0.4,0.6,0.005)){
   
@@ -403,22 +405,30 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:
   
   #========================================================================================
   # Constructing more matricies and iterating the procedure from maturity to time 0
-
-  Bond_values <- matrix(1,nrow = M, ncol = 1)
-  
- 
-
-  # C_2 <- matrix(0,nrow = M,ncol = 1)
-  # C_2[1,1] <- pd(1)
-  # C_2[M,1] <- pu(M)
   Inv <- solve(Diag_1)
   
-  for (i in 1:(length(I)+1)){
+  Bond_values_1 <- matrix(1,nrow = M, ncol = 1)
+  Bond_values_2 <- matrix(1,nrow = M, ncol = 1)
+  C_1 <- matrix(0,nrow = M,ncol = 1)
+  C_1[1,1] <- pd(1)*Bond_values_1[1,1]
+  C_1[M,1] <- pu(M)*Bond_values_1[M,1]
+  RHS <- Diag_2%*%Bond_values_1 +2*C_1
+  Bond_values_1 <- Inv%*%RHS  
+ 
+
+  for (i in 1:(length(I)-1)){
+    C_2 <- matrix(0,nrow = M,ncol = 1)
+    C_2[1,1] <- pd(1)*Bond_values_2[1,1]
+    C_2[M,1] <- pu(M)*Bond_values_2[1,1]
+  
     C_1 <- matrix(0,nrow = M,ncol = 1)
-    C_1[1,1] <- pd(1)*Bond_values[1,1]
-    C_1[M,1] <- pu(M)*Bond_values[M,1]
-    RHS <- Diag_2%*%Bond_values +2*C_1
+    C_1[1,1] <- pd(1)*Bond_values_1[1,1]
+    C_1[M,1] <- pu(M)*Bond_values_1[M,1]
+    
+    RHS <- Diag_2%*%Bond_values_1 + C_1 + C_1
     Bond_values <- Inv%*%RHS
+    Bond_values_2 <- Bond_values_1
+    Bond_values_1 <- Bond_values
   }
 
   # Index of rate corresponding to desired short rate
@@ -428,7 +438,6 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:
 }
 
 ```
-
 
 ```{r 9}
 # Plots of the different methods
@@ -503,7 +512,7 @@ lines(xvec, known_sol, col ="blue", lty =1.5)
 
 ```
 
-```{r 10, echo = FALSE}
+```{r 10}
 # Comparison of results for numerical methods
 
 
@@ -757,7 +766,6 @@ for ( i in 1:100){
 
 ```
 
-
 ```{r 13}
 # Convergence Tests for finite difference methods
 # Varying time steps
@@ -793,9 +801,6 @@ lines(x = time_vec, y = Expl_conv, type = "l", lty = 2, col = "red",lwd =1.5)
 legend(x = 60, y = 0.6, legend = c("Closed Form", "Crank-Nicolson", "Implicit", "Explicit"), lty = c(1,2,2,2), col = c("black","black","blue", "red"), cex = 0.8, bty ="n")
 
 ```
-
-
-
 
 ```{r 14}
 # Convergence Tests for finite difference methods
@@ -839,7 +844,6 @@ legend(x = 60, y = 0.6, legend = c("Closed Form", "Crank-Nicolson", "Implicit", 
 # legend(x = 60, y = 0.6, legend = c("Closed Form", "Crank-Nicolson", "Implicit", "Explicit"), lty = 1:4, col = c("black","black","blue", "red"), cex = 0.8)
 
 ```
-
 
 ```{r 15}
 # Covergence tests for Monte Carlo functions
