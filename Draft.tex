@@ -107,184 +107,193 @@ This is then repeated for more paths and we take the sample mean as the final es
 
 \subsection{Variance reduction techniques}
 
-We make use of three techniques to decrease variance amongst the estimates.The antithetic and moment matching make use of a similar method to the crude monte carlo. The difference occurs in the simulation of the normal RV's. Dependent $Z_i's$  are used to decrease the variance and increase stability amongst the estimate.The control variates makes use of an positively correlated short rate model who's closed form is known.    
+To decrease the variance of the estimates , three variance reduction techniques will be used. 
 
 
 \subsubsection{Antithetic variates}
 
-Under this technique, 
+Under this technique, First simulate n i.i.d $Z_i's$ and follow the crude monte carlo technique as above.Repeat the same procedure using  $-Z_i's$.The average of estimates is taken to be the final estimate 
 
-\begin{itemize}
-	\item First simulate n i.i.d $Z_i's$ and follow the crude monte carlo technique as above.
-	\item Repeat the same procedure using  $-Z_i's$
-	\item The average of estimates is taken to be the final estimate 
-\end{itemize}
-
-Note that $Z_{i}$ and $-Z_{i}$ are negatively correlated and dependent and as such COV( $Z_{i}$,$-Z_{i}$) <0. Therefore if $X$ is the price estimated using $Z_i's$ and $Y$ is estimates using $-Z_i's$, then :
-
-$$Z =\frac{X+Y}{2}$$
-
-and 
-
-$$VAR(Z)=(\frac{1}{2})^{2}(VAR(X)+VAR(Y)+2COV(X,Y))$$
-
-Since the covariance is negative, the larger its value, the lower the variance of the estimate.
 
 \subsubsection{Moment matching}
 The moment matching method, specifically first moment matching, where the sample normal $Z_{i}s$ are transformed to $\hat{Z}_{i}=Z_{i}-\bar{Z}$ where $\bar{Z}=\sum_{i=1}^{n}\frac{Z_{i}}{n}$.
 
-The resulting $\hat{Z}_{i}s$ are not independent and are then used to simulate the short rate values and find the estimates.   
+The resulting $\hat{Z}_{i}s$ are not independent and are then used to simulate the short rate values and find the estimates as in the Monte Carlo method.   
 
-
-
+ 
 \subsubsection{Control variates}
-Andersen (1995) made use of the Vasicek model as a control variate process when deriving the bond price using the Cox-Ingersoll-Ross(CIR) model. In this paper we use the opposite approach and use the CIR model as the control variate process.
 
-The methodology around this involves
+Define the price under the close form of the CIR model to be $P_{C}$. Conduct Monte Carlo simulations for the CIR model and define the price under this to be $\hat{P}_{C}$.Conduct Monte Carlo simulations for the Vasicek model and define the price under this to be $\hat{P}_{V}$
 
-\begin{itemize}
-	
-	\item Define the price under the close form of the CIR model to be $P_{C}$
-	\item Conduct Monte Carlo simulations for the CIR model and define the price under this to be $\hat{P}_{C}$
-	\item Conduct Monte Carlo simulations for the Vasicek model and define the price under this to be $\hat{P}_{V}$
-	\item Therefore the estimate $P_{V}$:
-	\\$E[P_{V}]=E[P_{C}]-E[\hat{P}_{C}-\hat{P}_{V}]$
-	\\ $= E[P_{V}]$
-	\item The variance under such a method will then be 
-	\\$VAR[P_{V}]=VAR[\hat{P}_{V}]+VAR[\hat{P}_{C}]-2COV[\hat{P}_{V},\hat{P}_{C}]$
-	
-\end{itemize}
+Define $P_{V}$ to be the numerical estimate of the bond price
 
-The same case here as a larger covariance will decrease the overall variance. 
+$E[P_{V}]=E[\hat{P}_{V}-\hat{P}_{C}]+P_{V} $
+
+The variance under this method is then:  
+\\$VAR[P_{V}]=VAR[\hat{P}_{V}]+VAR[\hat{P}_{C}]-2COV[\hat{P}_{V},\hat{P}_{C}]$ 
 
 
-
-
-
-
-
-
+    
 \subsection{Finite difference method}
 
-The finite difference methods works on a space which is partitioned into a grid by two independent variables. The y variable is the initial rate whilst the x variable is time. A boundary condition exists at time T where the price, f(T,.), is set to be 1.The PDE is first discretized .Partial differentials are then calculated at each point on the grid. The bond price is then calculated iteratively at all the grid points by solving for the PDE. The methodology makes use of matrices to solve for the bond prices.  
+The finite difference methods works on a space which is partitioned into a grid by two independent variables. The y variable is the initial rate whilst the x variable is time. A boundary condition exists at time T where the price, B(T,.)=1.The PDE is first discretized .Partial differentials are then calculated at each point on the grid. The bond price is then calculated iteratively at all the grid points by solving for the PDE.
+
+The bond prices are solved for by matrix formulation.    
 
 
 \subsubsection{Explicit method}
 
 After discretizing the PDE and grouping the similar terms we arrive at the following equation.  
 
-$$f_{i-1,j}=a_{j}f_{i,j-1}+b_{j}f_{i,j}+c_{j}f{i,j+1}$$ 
+$$B_{i-1,j}=pu_{j}B_{i,j-1}+pm_{j}B_{i,j}+pd_{j}B_{i,j+1}$$ 
 
 where i= 0,....,T \\
-j= $r_0, ....r_n$
-
-Using the boundary values we substitute into $f_{i,j-1}, f_{i,j}, f{i,j+1}$ and work backwards to calculate the value at point $f_{i-1,j}$ and repeat the process until time t to get the prices for varying interest rates. 
+      j= $r_0,r_1,....r_n$
+      
+First we substitute the boundary values into $B_{i,j-1}, B_{i,j}, B{i,j+1}$ and work backwards to calculate the value at point $B_{i-1,j}$ and repeat the process at each point until time t to get the estimates of the prices for varying interest rates $r_0,r_1,...r_n$ 
 
 Note that:       
-
-
-$$a_{j}=(r_t+1/\Delta t)^{-1}\frac{\sigma^{2}}{2(\Delta r_j)^{2}}+\frac{\alpha-\beta r_j}{2\Delta r_j}$$
-$$b_{j}=(r_t+1/\Delta t)^{-1}\frac{1}{\Delta t}-\frac{\sigma^2}{\Delta r_j}^{2}$$
-$$c_{j}=(r_t+1/\Delta t)^{-1}\frac{\sigma^{2}}{2(\Delta r_j)^{2}}+\frac{\alpha-\beta r_j}{2\Delta r_j}$$
+$$pu_{j}=(r_j/\Delta t)^{-1}(\frac{\sigma^{2}}{2(\Delta r_j)^{2}}+\frac{\alpha-\beta r_j}{2\Delta r_j})$$
+$$pm_{j}=(r_j/\Delta t)^{-1}(\frac{1}{\Delta t}-\frac{\sigma^2}{\Delta r_j}^{2})$$
+$$pd_{j}=(r_j/\Delta t)^{-1}(\frac{\sigma^{2}}{2(\Delta r_j)^{2}}+\frac{\alpha-\beta r_j}{2\Delta r_j})$$
 
 Under the matrix formulation we have the equation to be:
 
-$$F_{i-1}=AF_{i}+K_{i}$$
-
-where
-
-$$F_{i}= \begin{bmatrix}
-f_{i,1} \\
-f_{i,2} \\
-\vdots \\
-f_{i,r_{n-1}}
-\end{bmatrix}
-$$
-
-$$K_{i}= \begin{bmatrix}
-a_{1}f_{i,0} \\
-0 \\
-\vdots \\
-0 \\
-c_{j-1}f_{i, r_{n-1}}
-\end{bmatrix}  $$
-
-
-$$ A= \left( \begin{array}{cccccc}
-b_{1} & c_{1} & 0 & \cdots  & 0 & 0\\
-a_{2} & b_{2} & c_{2} &\cdots & 0 & 0 \\
-& a_{3} & b_{3} & \cdots & 0 & 0  \\
+$$\begin{bmatrix}
+	B_{i-1,1} \\
+	B_{i-1,2} \\
+	\vdots \\       
+	B_{i-1,n-1}
+	\end{bmatrix}
+=
+\left( \begin{array}{cccccc}
+pm_{1} & pd_{1} & 0 & \cdots  & 0 & 0\\
+pu_{2} & pm_{2} & pd_{2} &\cdots & 0 & 0 \\
+& pu_{3} & pm_{3} & \cdots & 0 & 0  \\
 & \vdots &\vdots & \ddots & \vdots & \vdots \\ 
-& 0 & 0 & \cdots & a_{n-1} & b_{n-1} \end{array} \right) $$
-
-
-
+& 0 & 0 & \cdots & pu_{n-1} & pm_{n-1} \end{array} \right) 
+%
+\begin{bmatrix}
+	B_{i,1} \\
+	B_{i,2} \\
+	\vdots \\       
+	B_{i,n-1}
+\end{bmatrix}
++
+ \begin{bmatrix}
+	pu_{1}B_{i,0} \\
+	0 \\
+	\vdots \\
+	0 \\
+	pd_{j-1}B_{i,n-1}
+	\end{bmatrix}  
+$$
+ 
+ 
+ 
 \subsubsection{ Implicit method}
 
 Under this case , once the dicretizationa and grouping of terms occur , we obtain
 
-$$f_{i+1,j}= a_{j}f_{i,j-1}+b_{j}f_{i,j}+c_{j}f{i,j+1} $$
+$$B_{i+1,j}= pu_{j}B_{i,j-1}+pm_{j}B_{i,j}+pd_{j}B{i,j+1} $$
 
-In this case the value at $f_{i+1,j}$ is used to work out the other 3 values. This can be done simultaneously as when all the equations are written down, there are equal number of equations as to unknowns.
+In this case the value at $B_{i+1,j}$ is used to work out the other 3 values. This can be solved simultaneously as when all the equations are written down, there are equal number of equations as to unknowns.
 
 
 Under this case
 
-$$a_{j}= (\frac{\alpha-\beta r_{j+1}}{2\Delta r} - \frac{\sigma^2}{2\Delta r^2})\Delta t$$ 
-$$b_{j}= (r_{j+1}+\frac{1}{\Delta t} + \frac{\sigma^2}{\Delta r ^2})\Delta t$$
-$$c_{j}= (\frac{\alpha-\beta r_{j+1}}{2\Delta r} + \frac{\sigma^2}{2\Delta r^2})(-\Delta t) $$
+$$pu_{j}= (\frac{\alpha-\beta r_{j+1}}{2\Delta r} - \frac{\sigma^2}{2\Delta r^2})\Delta t$$ 
+$$pm_{j}= (r_{j+1}+\frac{1}{\Delta t} + \frac{\sigma^2}{\Delta r ^2})\Delta t$$
+$$pd_{j}= (\frac{\alpha-\beta r_{j+1}}{2\Delta r} + \frac{\sigma^2}{2\Delta r^2})(-\Delta t) $$
 
 The matrix formulation is:
 
-$$ BF_{i}= F_{i+1}+K{i}$$
-
-
-$$F_{i}= \begin{bmatrix}
-f_{i,1} \\
-f_{i,2} \\
+$$\left( \begin{array}{cccccc}
+pm_{1} & pd_{1} & 0 & \cdots  & 0 & 0\\
+pu_{2} & pm_{2} & pd_{2} &\cdots & 0 & 0 \\
+& pu_{3} & pm_{3} & \cdots & 0 & 0  \\
+& \vdots &\vdots & \ddots & \vdots & \vdots \\ 
+& 0 & 0 & \cdots & pd_{n-1} & pm_{n-1} \end{array} \right)
+%
+\begin{bmatrix}
+B_{i,1} \\
+B_{i,2} \\
 \vdots \\
-f_{i,r_{n-1}}
+B_{i,n-1}
+\end{bmatrix}
+=
+\begin{bmatrix}
+B_{i+1,1} \\
+B_{i+1,2} \\
+\vdots \\
+B_{i+1,r_{n-1}}
+\end{bmatrix}
++
+\begin{bmatrix}
+-pu_{1}B_{i,0} \\
+0 \\
+\vdots \\
+0 \\
+-pd_{j-1}B_{i, r_{n-1}}
 \end{bmatrix}
 $$
 
 
-$$K_{i}= \begin{bmatrix}
--a_{1}f_{i,0} \\
+\subsubsection{Crank Nicholson}
+
+This method involves making use of $B_{i,j+1}$, $B_{i,j}$ and $B_{i,j-1}$ to evaluate the prices at $B_{i-11,j+1}$, $B_{i-1,j}$ and $B_{i-1,j-1}$. 
+
+$$pu_{j}=\frac{\alpha-\beta r_{j+1}}{4\Delta r} - \frac{\sigma^2}{4\Delta r^2}$$
+$$pm_{j}= \frac{\sigma^2}{2 (\Delta r)^2}+\frac{r_{j}}{2}$$
+$$pd_{j}=-\frac{\alpha-\beta r_{j+1}}{4\Delta r} - \frac{\sigma^2}{4\Delta r^2}$$
+
+The matrix formulation under this method is:
+
+$$ \left( \begin{array}{cccccc}
+-(1/\Delta t)-pm_{1} & -pd_{1} & 0 & \cdots  & 0 & 0\\
+-pu_{2} & -(1/\Delta t)-pm_{2} & -pd_{2} &\cdots & 0 & 0 \\
+& -pu_{3} & -(1/\Delta t)-pm_{3} & \cdots & 0 & 0  \\
+& \vdots &\vdots & \ddots & \vdots & \vdots \\ 
+& 0 & 0 & \cdots & -pu_{n-1} & -(1/\Delta t)-pm_{n-1} \end{array} \right
+%
+\begin{bmatrix}
+B_{i-1,1} \\
+B_{i-1,2} \\
+\vdots \\
+B_{i-1,n-1}
+\end{bmatrix} 
+\\
+=
+\left( \begin{array}{cccccc}
+-(1/\Delta t)+pm_{1} & pd_{1} & 0 & \cdots  & 0 & 0\\
+pu_{2} & -(1/\Delta t)+pm_{2} & pd_{2} &\cdots & 0 & 0 \\
+& pu_{3} & 1+b_{3} & \cdots & 0 & 0  \\
+& \vdots &\vdots & \ddots & \vdots & \vdots \\ 
+& 0 & 0 & \cdots & -pu_{n-1} & -(1/\Delta t+pm_{n-1} \end{array} \right) 
+%
+\begin{bmatrix}
+B_{i,1} \\
+B_{i,2} \\
+\vdots \\
+B_{i,n-1}
+\end{bmatrix}
++
+\begin{bmatrix}
+pu_{1}B_{i-1,0} \\
 0 \\
 \vdots \\
 0 \\
--c_{j-1}f_{i, r_{n-1}}
-\end{bmatrix}  $$
-
-where $B$ is the tridiagonal matrix with the entries similar to the explicit method.
-
-\subsubsection{Crank Nicholson}
-
-$$a_{j}=(\frac{\alpha-\beta r_{j+1}}{4\Delta r} - \frac{\sigma^2}{4\Delta r^2}) $$
-
-$$b_{j}= \frac{\sigma^2}{2 (\Delta r)^2}+\frac{r_{j}}{2}$$
-
-$$c_{j}=(-\frac{\alpha-\beta r_{j+1}}{4\Delta r} - \frac{\sigma^2}{4\Delta r^2}) $$
-
-The matrix formulation under this method is :
-
-$$CF_{i-1}=DF_{i-1}+K_{i-1}+K_{i}$$
-
-where
-
-$$ A= \left( \begin{array}{cccccc}
-1-b_{1} & -c_{1} & 0 & \cdots  & 0 & 0\\
--a_{2} & 1-b_{2} & -c_{2} &\cdots & 0 & 0 \\
-& -a_{3} & 1-b_{3} & \cdots & 0 & 0  \\
-& \vdots &\vdots & \ddots & \vdots & \vdots \\ 
-& 0 & 0 & \cdots & -a_{n-1} & 1-b_{n-1} \end{array} \right) $$
-
-$$ D= \left( \begin{array}{cccccc}
-1+b_{1} & c_{1} & 0 & \cdots  & 0 & 0\\
-a_{2} & 1+b_{2} & c_{2} &\cdots & 0 & 0 \\
-& a_{3} & 1+b_{3} & \cdots & 0 & 0  \\
-& \vdots &\vdots & \ddots & \vdots & \vdots \\ 
-& 0 & 0 & \cdots & -a_{n-1} & 1+b_{n-1} \end{array} \right) $$
+pd_{j-1}B_{i-1,n-1}
+\end{bmatrix}
++
+ \begin{bmatrix}
+pu_{1}B_{i,0} \\
+0 \\
+\vdots \\
+0 \\
+pd_{j-1}B_{i,n-1}
+\end{bmatrix}  
+$$
 
 
 \newpage
