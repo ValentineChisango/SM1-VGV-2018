@@ -191,8 +191,6 @@ Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r =
 
 ```
 
-
-
 ```{r 6}
 # Explicit Method
 
@@ -718,17 +716,18 @@ lines(1:8, senses[2,2:9], col="red",type = "p", pch = 19)
 lines(1:8, senses[3,2:9],col ="blue",type = "p", pch =19)
 legend("bottomright", inset = c(-0,0), legend = c("r = 0.05", "r = 0.08", "r = 0.10"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n", pch =19)
 
-plot(x=1:8,y=senses[1,2:9], ylim =c(0,2.2), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Time to maturity")
-#axis(1, at=1:8, labels=xvec)
-lines(1:8, senses[4,2:9], col="red",type = "p")
-lines(1:8, senses[5,2:9],col ="blue",type = "p")
-legend("topright", inset = c(-0,0), legend = c("T=1", "T=5", "T=10"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n")
 
-plot(x=1:8,y=senses[1,2:9], ylim =c(0,2.2), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Sigma")
-#axis(1, at=1:8, labels=xvec)
-lines(1:8, senses[6,2:9], col="red",type = "p")
-lines(1:8, senses[7,2:9],col ="blue",type = "p")
-legend("bottomright", inset = c(-0,0), legend = c("sigma=0.001", "sigma=0.005", "sigma=0.1"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n")
+plot(x=1:8,y=senses[1,2:9], ylim =c(0,2.2), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Time to maturity", xaxt = "n", col ="black", pch = 19, font.main = 1)
+axis(1, at=1:8, labels=xvec)
+lines(1:8, senses[4,2:9], col="red",type = "p", pch = 19)
+lines(1:8, senses[5,2:9],col ="blue",type = "p", pch = 19)
+legend("topright", inset = c(-0,0), legend = c("T=1", "T=5", "T=10"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n", pch = 19)
+
+plot(x=1:8,y=senses[1,2:9], ylim =c(0.55,0.7), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Sigma", xaxt = "n", col ="black", pch = 19, font.main = 1)
+axis(1, at=1:8, labels=xvec)
+lines(1:8, senses[6,2:9], col="red",type = "p", pch = 19)
+lines(1:8, senses[7,2:9],col ="blue",type = "p", pch = 19)
+legend("bottomright", inset = c(-0,0), legend = c("sigma=0.001", "sigma=0.005", "sigma=0.1"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n", pch = 19)
 
 plot(x=1:8,y=senses[1,2:9], ylim =c(0,2.2), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Alpha")
 #axis(1, at=1:8, labels=xvec)
@@ -761,8 +760,8 @@ CV = NULL
 
 for ( i in 1:100){
   CR[i]=Crude_Monte_Carlo()
-  AN[i]=Antithetic_variates()
-  MM[i]=Moment_Matching()
+  #AN[i]=Antithetic_variates()
+  #MM[i]=Moment_Matching()
   CV[i]=Control_Variates_estimate()
 }
 
