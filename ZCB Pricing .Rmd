@@ -709,6 +709,20 @@ senses[13,7]=explicit(alpha=0.16,beta=1.6)
 senses[13,8]=implicit(alpha=0.16,beta=1.6)
 senses[13,9]=CN(alpha=0.16,beta=1.6)
 
+senses[1,1]="-"
+senses[2,1]="r=0.05"
+senses[3,1]="r=0.1"
+senses[4,1]="T=1"
+senses[5,1]="T=10"
+senses[6,1]="sigma=0.001"
+senses[7,1]="sigma=0.01"
+senses[8,1]="alpha=0.01"
+senses[9,1]="alpha=0.16"
+senses[10,1]="beta=0.1"
+senses[11,1]="beta=1.6"
+senses[12,1]="alpha=0.01,beta=0.1"
+senses[13,1]="#alpha=0.16,beta=1.6"
+
 par(mfrow=c(1,1))
 plot(x=1:8,y=senses[1,2:9], ylim =c(0.58,0.66), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Interest Rate", xaxt = "n", col ="black", pch = 19, font.main = 1)
 axis(1, at=1:8, labels=xvec)
