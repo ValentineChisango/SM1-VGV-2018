@@ -87,7 +87,7 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
   for (i in 1:n){
     for (j in 2:(s+1)){
       dr = (alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i] # Same Euler Discretization as in the Crude Monte Carlo function
-      dr_i = (alpha-beta*sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[i] # Euler Discretization for negative rates
+      dr_i = (alpha-beta*sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[i] # Euler Discretization for the use of -Z_i
       sim_path[j,i] =sim_path[j-1,i]+dr
       sim_path_inv[j,i] = sim_path_inv[j-1,i]+dr_i
       
@@ -97,11 +97,11 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
   # Monte Carlo Simulations
   Sum = colSums(sim_path[2:(s+1),]*dt) # The Sum and Sum. variables record the summation of their respective rates to approximate the integral
   Sum.= colSums(sim_path_inv[2:(s+1),]*dt)
-  int = exp(-Sum.) #Exponential of the estimate
-  int.= exp(-Sum) #Exponential of the estimate under the negative rv 
+  int = exp(-Sum.) #Exponential of the estimate using Z_i
+  int.= exp(-Sum) #Exponential of the estimate using -Z_i
   mean_1 = mean(int) # Estimate using Z_i
   mean_2 = mean(int.)  # Estimate using -Z_i
-  result = (mean_1+mean_2)/2 # Final estimate
+  result = (mean_1+mean_2)/2 # Final estimate is taken as the average of the two estimates.
   result
   
 }
@@ -126,11 +126,12 @@ Moment_Matching = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5,r = 0.
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r
   z=rnorm(n)
-  z_m= z-mean(z) # Moment matching transformation of RV to match finite moments 
+  z_m= z-mean(z) # Moment matching transformation of Z_i to match finite moments 
   
+  # Follow the same process as in the Monte Carlo approach , but use the transformed Z_i's to simulate the rates
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z_m[i] # Simulate rates using the transformed rv 
+      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z_m[i] 
       sim_path[j,i]=sim_path[j-1,i]+dr
     }
   }
@@ -148,7 +149,7 @@ Moment_Matching = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5,r = 0.
 
 # Control Variates
 
-# We have decided to make use of the CIR model as our control variate process.
+# Make use of the CIR model as the control variate process.
 # Below is the closed form solution under the CIR model
 bond_price_CIR <- function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08){
   h <- sqrt(beta^(2)+2*sigma^(2))
@@ -181,10 +182,10 @@ CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=100){
   result
   
 }
-# Therefore the control variates estimate:
+# The control variate estimate is taken as the difference between the the Crude MOnte carlo estimates of the Vasicek and CIR model plus the closed form of the CIR model
 
 Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08,n=1000,s=100){
-  Crude_Monte_Carlo(alpha,beta,sigma,T,r,n,s)[1]- CIR_MC(alpha,beta,sigma,T,r,n,s)[1]+bond_price_CIR(alpha,beta,sigma,t,T,r)
+  Crude_Monte_Carlo(alpha,beta,sigma,T,r,n,s)- CIR_MC(alpha,beta,sigma,T,r,n,s)+bond_price_CIR(alpha,beta,sigma,t,T,r)
 }
 
 
