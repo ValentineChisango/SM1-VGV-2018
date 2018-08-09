@@ -32,7 +32,7 @@ bond_price <- function(alpha=0.08,beta=0.8,sigma=0.005,t=0,T=5,r=0.08){
 
 # Crude Monte Carlo function 
 
-Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=100){
+Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=1250){
   
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
@@ -68,7 +68,7 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,
 
 # Antithetic Variates
 
-Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=100){
+Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=1250){
 
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
@@ -113,7 +113,7 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
 
 # Moment matching
 
-Moment_Matching = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5,r = 0.08, n = 1000, s = 200){
+Moment_Matching = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5,r = 0.08, n = 1000, s = 1250){
   
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
@@ -161,7 +161,7 @@ bond_price_CIR <- function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08){
 
 # Monte Carlo Simulations of Bond Price under the CIR model
 
-CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=100){
+CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=1250){
   
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
@@ -184,7 +184,7 @@ CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=100){
 }
 # The control variate estimate is taken as the difference between the the Crude MOnte carlo estimates of the Vasicek and CIR model plus the closed form of the CIR model
 
-Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08,n=1000,s=100){
+Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08,n=1000,s=1250){
   Crude_Monte_Carlo(alpha,beta,sigma,T,r,n,s)- CIR_MC(alpha,beta,sigma,T,r,n,s)+bond_price_CIR(alpha,beta,sigma,t,T,r)
 }
 
