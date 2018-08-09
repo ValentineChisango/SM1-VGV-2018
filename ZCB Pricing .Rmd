@@ -44,10 +44,11 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,
   dt <- T/s # Length of sub-intervals
   sim_path = matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r # Initial rates on first row.
+  z=rnorm(n)# Generation of standard normal random variables
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*rnorm(1)# Discretize the SDE of the interest model using Euler Discretization to simulate rates over discrete sub-intervals
+      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i]# Discretize the SDE of the interest model using Euler Discretization to simulate rates over discrete sub-intervals
       sim_path[j,i]=sim_path[j-1,i]+dr
     }
   }
@@ -166,10 +167,11 @@ CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=1250){
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r
+  z=rnorm(n) # Generation of standard normal variables
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=(alpha-beta*sim_path[j-1,i])*dt+(sigma*sqrt(dt)*rnorm(1)*sqrt(sim_path[j-1,i]))# Euler Discretization
+      dr=(alpha-beta*sim_path[j-1,i])*dt+(sigma*sqrt(dt)*z[i]*sqrt(sim_path[j-1,i]))# Euler Discretization
       sim_path[j,i]=sim_path[j-1,i]+dr
     
     }
