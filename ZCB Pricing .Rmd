@@ -756,7 +756,7 @@ lines(1:8, senses[10,2:9], col="red",type = "p",pch = 19)
 lines(1:8, senses[11,2:9],col ="blue",type = "p",pch = 19)
 legend("bottomright", inset = c(-0,0), legend = c("beta=0.1", "beta=0.8", "beta=1.6"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n",pch = 19)
 
-plot(x=1:8,y=senses[1,2:9], ylim =c(0.58,0.66), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Alpha & Beta",  xaxt = "n", col ="black", pch = 19, font.main = 1)
+plot(x=1:8,y=senses[1,2:9], ylim =c(0.58,0.7), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Alpha & Beta",  xaxt = "n", col ="black", pch = 19, font.main = 1)
 axis(1, at=1:8, labels=xvec)
 lines(1:8, senses[12,2:9], col="red",type = "p",pch = 19)
 lines(1:8, senses[13,2:9],col ="blue",type = "p",pch = 19)
