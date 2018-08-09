@@ -775,10 +775,17 @@ CV = NULL
 
 for ( i in 1:100){
   CR[i]=Crude_Monte_Carlo()
-  #AN[i]=Antithetic_variates()
-  #MM[i]=Moment_Matching()
+  AN[i]=Antithetic_variates()
+  MM[i]=Moment_Matching()
   CV[i]=Control_Variates_estimate()
 }
+
+var(CR)
+var(AN)
+var(MM)
+var(CV)
+
+
 
 ```
 
