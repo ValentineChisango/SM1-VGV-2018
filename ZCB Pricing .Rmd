@@ -138,8 +138,8 @@ Moment_Matching = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5,r = 0.
   }
   
   Sum=colSums(sim_path[2:(s+1),]*dt)
-  int=exp(-Sum)
-  result=mean(int)
+  int=exp(-Sum)  # Take the exponent of the Integral
+  result=mean(int) # Find the average of expression
   result
 
 }
@@ -254,7 +254,7 @@ explicit = function(alpha = 0.08,beta = 0.8, sigma = 0.005,r = 0.08, I = 1:1250,
     C[M,1] <- (pu(M))*Bond_values[M,1]
     C[1,1] <- pd(1)*Bond_values[1,1]
     
-    Bond_values <- Diag_1%*%Bond_values
+    Bond_values <- Diag_1%*%Bond_values# New values of bond prices based on next time price
     Bond_values <- Bond_values
   }
   
@@ -408,12 +408,15 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:
   
   #========================================================================================
   # Constructing more matricies and iterating the procedure from maturity to time 0
-  Inv <- solve(Diag_1)
+  Inv <- solve(Diag_1) # Inverse of 1st tridiagonal matrix
   
-  Bond_values_1 <- matrix(1,nrow = M, ncol = 1)
+  # These 2 matricies are used for the recursive algorithm
+  Bond_values_1 <- matrix(1,nrow = M, ncol = 1) 
   Bond_values_2 <- matrix(1,nrow = M, ncol = 1)
+  
+  # Calculation for first time step backwards
   C_1 <- matrix(0,nrow = M,ncol = 1)
-  C_1[1,1] <- pd(1)*Bond_values_1[1,1]
+  C_1[1,1] <- pd(1)*Bond_values_1[1,1] # Matrix for boundary conditions
   C_1[M,1] <- pu(M)*Bond_values_1[M,1]
   RHS <- Diag_2%*%Bond_values_1 +2*C_1
   Bond_values_1 <- Inv%*%RHS  
@@ -430,8 +433,8 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:
     
     RHS <- Diag_2%*%Bond_values_1 + C_1 + C_2
     Bond_values <- Inv%*%RHS
-    Bond_values_2 <- Bond_values_1
-    Bond_values_1 <- Bond_values
+    Bond_values_2 <- Bond_values_1 # One of the matricies depends on current time
+    Bond_values_1 <- Bond_values # One of the matricies depends on next time step
   }
 
   # Index of rate corresponding to desired short rate
@@ -443,79 +446,6 @@ CN <- function(alpha = 0.08, beta = 0.8, sigma = 0.005, r = 0.08, T = 5 , I = 1:
 ```
 
 ```{r 9}
-# Plots of the different methods
-par(mfrow = c(2,2))
-
-xvec <- seq(-0.4,0.6,0.005) # Vector for rates
-
-known_sol <- NULL # Vector to hold the known closed form solution
-for (r in 1:length(xvec)){
-  known_sol[r] <- bond_price(0.08,0.8,0.005,0,5,xvec[r])
-}
-
-CR <- NULL # Vector to hold Crude Monte Carlo Solutions
-AV <- NULL # Vector to hold Antithetic Monte Carlo Solutions
-MM <- NULL # Vector to hold Moment Matching  Carlo Solutions
-CV <- NULL # Vector to hold Control Variates Monte Carlo Solutions
-
-Expl <- NULL # Vector to hold Explicit method Solutions
-Impl <- NULL # Vector to hold Implicit method Solutions
-Crank <- NULL # Vector to hold Crank-Nicolson Solutions
-
-
-# Plots of Monte Carlo Methods ----------------------------------------------------------------------
-
-for (i in 1: length(xvec)){
-  CR[i] <- Crude_Monte_Carlo(r = xvec[i])
-}
-
-for (i in 1: length(xvec)){
-  AV[i] <- Antithetic_variates(r = xvec[i])
-}
-
-for (i in 1: length(xvec)){
-  MM[i] <- Moment_Matching(r = xvec[i])
-}
-
-for (i in 1: length(xvec)){
-  CV[i] <- Control_Variates_estimate(r = xvec[i])
-}
-
-plot(CR, x = xvec[1:length(xvec)],xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Monte Carlo Solutions vs Known Solution")
-lines(xvec, known_sol, col ="blue", lty =1.5)
-lines(xvec, AV, col ="black", lty =1.5)
-lines(xvec, MM, col ="yellow", lty =1.5)
-lines(xvec, CV, col ="green", lty =1.5)
-
-
-# Plots of Finite Difference Methods ----------------------------------------------------------------------
-
-for (i in 1: length(xvec)){
-  Expl[i] <- explicit(r = xvec[i], I = 1:10000)
-}
-
-for (i in 1: length(xvec)){
-  Impl[i] <- implicit(r = xvec[i])
-}
-
-for (i in 1: length(xvec)){
-  Crank[i] <- CN(r = xvec[i])
-}
-
-
-plot(Expl, x = xvec ,xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Explicit Method vs Known Solution")
-lines(xvec, known_sol, col ="blue", lty =1.5)
-
-plot(Impl, x = xvec ,xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Implicit Method vs Known Solution")
-lines(xvec, known_sol, col ="blue", lty =1.5)
-
-
-plot(Crank, x = xvec ,xlab = " Annual Interest Rate",ylab = "Bond Price",type = "l", col ="red", main = "Crank-Nicolson Method vs Known Solution")
-lines(xvec, known_sol, col ="blue", lty =1.5)
-
-```
-
-```{r 10}
 # Comparison of results for numerical methods
 
 
@@ -527,9 +457,9 @@ rownames(compare_mat) <- c("Crude Monte Carlo", "Antithetic Variates", "Moment M
 compare_mat[,2] <- bond_price()
 
 # Crude Monte Carlo
-start_time <- proc.time()[1]
+start_time <- proc.time()[1] # System time before method starts
 compare_mat[1,1] <- Crude_Monte_Carlo()
-compare_mat[1,4] <- proc.time()[1] - start_time
+compare_mat[1,4] <- proc.time()[1] - start_time # Getting difference of times
 compare_mat[1,3] <- compare_mat[1,2] - compare_mat[1,1]
 
 # Antithetic Variates
@@ -568,12 +498,12 @@ compare_mat[7,1] <- CN()
 compare_mat[7,4] <- proc.time()[1] - start_time
 compare_mat[7,3] <- compare_mat[7,2] - compare_mat[7,1]
 
-library(xtable)
+library(xtable) # package to get LaTex code for table
 xtable(compare_mat, digits = 5)
        
 ```
 
-```{r 11}
+```{r 10}
 # Sensitivity Tests
 
 senses <- matrix(nrow=13, ncol=9) # matrix to hold prices for various parameters
@@ -712,6 +642,7 @@ senses[13,7]=explicit(alpha=0.16,beta=1.6)
 senses[13,8]=implicit(alpha=0.16,beta=1.6)
 senses[13,9]=CN(alpha=0.16,beta=1.6)
 
+# Labels for first column
 senses[1,1]="-"
 senses[2,1]="r=0.05"
 senses[3,1]="r=0.1"
@@ -726,6 +657,7 @@ senses[11,1]="beta=1.6"
 senses[12,1]="alpha=0.01,beta=0.1"
 senses[13,1]="alpha=0.16,beta=1.6"
 
+# Plots of sensitivity tests
 par(mfrow=c(1,1))
 plot(x=1:8,y=senses[1,2:9], ylim =c(0.58,0.66), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Interest Rate", xaxt = "n", col ="black", pch = 19, font.main = 1)
 axis(1, at=1:8, labels=xvec)
@@ -769,8 +701,8 @@ library(xtable)
 xtable(senses, digits = 5)
 ```
 
-```{r 12}
-#Stability Tests
+```{r 11}
+#Stability Tests for Monte Carlo methods
 
 # We do this by checking the variance amongst the results when simulated many times.
 
@@ -786,25 +718,23 @@ for ( i in 1:100){
   CV[i]=Control_Variates_estimate()
 }
 
-var(CR)
-var(AN)
-var(MM)
-var(CV)
-
-
+var(CR) # variance of crude monte carlo
+var(AN) # variance of antithetic variates
+var(MM) # variance of moment matching
+var(CV) # variance of control variates
 
 ```
 
-```{r 13}
+```{r 12}
 # Convergence Tests for finite difference methods
 # Varying time steps
 
-time_vec <- seq(1,100,1)
+time_vec <- seq(1,100,1) # Steps to use
 
-closed <- NULL
-CN_conv <- NULL
-Impl_conv <- NULL
-Expl_conv <- NULL
+closed <- NULL # vector to hold closed form prices
+CN_conv <- NULL # vector to hold Crank-Nicolson prices
+Impl_conv <- NULL # vector to hold Implicit method prices
+Expl_conv <- NULL # vector to hold Explicit method prices
 
 for (i in 1:length(time_vec)){
   closed[i] <- bond_price()
@@ -822,6 +752,7 @@ for (i in 1:length(time_vec)){
   Expl_conv[i] <- explicit(I = 1:time_vec[i])
 }
 
+# Plot of convergence 
 par(mfrow = c(1,1))
 plot(closed, x = time_vec, type = "l", ylim = c(0.59,0.65), xlab = "Number of time steps", ylab = "Estimated Price" , lty =1, font.main = 1, main = "Finite Difference Bond Prices as Time Steps Increase")
 lines(x = time_vec, y = CN_conv, type = "l", lty = 1, lwd =1.5, col = "green")
@@ -832,16 +763,17 @@ legend(x = 60, y = 0.62, legend = c("Closed Form", "Crank-Nicolson", "Implicit",
 ```
 
 
-```{r 14}
+```{r 13}
 # Covergence tests for Monte Carlo functions
+# Varying time steps
 
-trials_vec <- seq(10,2000,50)
+trials_vec <- seq(10,2000,50) # Vector holding time steps
 
-closed_1 <- NULL
-CR_conv <- NULL
-AV_conv <- NULL
-MM_conv <- NULL
-CV_conv <- NULL
+closed_1 <- NULL # vector to hold closed form prices
+CR_conv <- NULL # vector to hold Crude Monte Carlo prices
+AV_conv <- NULL # vector to hold Antithetic Variates prices
+MM_conv <- NULL # vector to hold Moment Matching prices
+CV_conv <- NULL # vector to hold Control Variates prices
 
 for (i in 1:length(trials_vec)){
   closed_1[i] <- bond_price()
@@ -863,6 +795,7 @@ for (i in 1:length(trials_vec)){
   CV_conv[i] <- Control_Variates_estimate(n = trials_vec[i])
 }
 
+# Plot of convergence
 plot(closed_1, x = trials_vec, type = "l",ylim = c(0.57,0.70), xlab = "Number of Trials", ylab = "Estimated Price", lty = 2, lwd = 2,font.main = 1, main = "Monte Carlo Bond Prices over Number of Trials")
 lines(x = trials_vec, y = CR_conv, type = "l", lty = 1, lwd =1.5)
 lines(x = trials_vec, y = AV_conv, type = "l", lty = 1, col = "blue", lwd =1.5)
