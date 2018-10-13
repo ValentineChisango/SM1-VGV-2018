@@ -32,7 +32,7 @@ bond_price <- function(alpha=0.08,beta=0.8,sigma=0.005,t=0,T=5,r=0.08){
 
 # Crude Monte Carlo function 
 
-Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=1250){
+Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=10000,s=1250){
   
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
@@ -44,11 +44,11 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,
   dt <- T/s # Length of sub-intervals
   sim_path = matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r # Initial rates on first row.
-  z=rnorm(n)# Generation of standard normal random variables
+ 
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i]# Discretize the SDE of the interest model using Euler Discretization to simulate rates over discrete sub-intervals
+      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*rnorm(1)# Discretize the SDE of the interest model using Euler Discretization to simulate rates over discrete sub-intervals
       sim_path[j,i]=sim_path[j-1,i]+dr
     }
   }
@@ -69,7 +69,7 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,
 
 # Antithetic Variates
 
-Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=1250){
+Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=10000,s=1250){
 
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
@@ -82,13 +82,15 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
   sim_path_inv= matrix(0,nrow = s+1, ncol = n)# matrix to generate interest paths using negative values of RV
   sim_path[1,] = r
   sim_path_inv[1,] = r
-  z = rnorm(n) # Generate standard normal values
-  z. = -z # Negative RV
+  
+  
   
   for (i in 1:n){
+    z = rnorm(1)# Generate standard normal values
+    z.=-z
     for (j in 2:(s+1)){
-      dr = (alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i] # Same Euler Discretization as in the Crude Monte Carlo function
-      dr_i = (alpha-beta*sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[i] # Euler Discretization for the use of -Z_i
+      dr = (alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z # Same Euler Discretization as in the Crude Monte Carlo function
+      dr_i = (alpha-beta*sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z. # Euler Discretization for the use of -Z_i
       sim_path[j,i] =sim_path[j-1,i]+dr
       sim_path_inv[j,i] = sim_path_inv[j-1,i]+dr_i
       
@@ -114,7 +116,7 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
 
 # Moment matching
 
-Moment_Matching = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5,r = 0.08, n = 1000, s = 1250){
+Moment_Matching = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5,r = 0.08, n = 10000, s = 1250){
   
   # alpha, beta, sigma <- Fixed Parameters
   # T <- maturity time
@@ -162,16 +164,16 @@ bond_price_CIR <- function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08){
 
 # Monte Carlo Simulations of Bond Price under the CIR model
 
-CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=1250){
+CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=10000,s=1250){
   
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r
-  z=rnorm(n) # Generation of standard normal variables
+
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=(alpha-beta*sim_path[j-1,i])*dt+(sigma*sqrt(dt)*z[i]*sqrt(sim_path[j-1,i]))# Euler Discretization
+      dr=(alpha-beta*sim_path[j-1,i])*dt+(sigma*sqrt(dt)*rnorm(1)*sqrt(sim_path[j-1,i]))# Euler Discretization
       sim_path[j,i]=sim_path[j-1,i]+dr
     
     }
@@ -186,7 +188,7 @@ CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1000,s=1250){
 }
 # The control variate estimate is taken as the difference between the the Crude MOnte carlo estimates of the Vasicek and CIR model plus the closed form of the CIR model
 
-Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08,n=1000,s=1250){
+Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08,n=10000,s=1250){
   Crude_Monte_Carlo(alpha,beta,sigma,T,r,n,s)- CIR_MC(alpha,beta,sigma,T,r,n,s)+bond_price_CIR(alpha,beta,sigma,t,T,r)
 }
 
@@ -767,7 +769,7 @@ legend(x = 60, y = 0.62, legend = c("Closed Form", "Crank-Nicolson", "Implicit",
 # Covergence tests for Monte Carlo functions
 # Varying time steps
 
-trials_vec <- seq(10,2000,50) # Vector holding time steps
+trials_vec <- seq(10,10000,50) # Vector holding time steps
 
 closed_1 <- NULL # vector to hold closed form prices
 CR_conv <- NULL # vector to hold Crude Monte Carlo prices
