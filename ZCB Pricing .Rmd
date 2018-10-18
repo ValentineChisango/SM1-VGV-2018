@@ -733,15 +733,27 @@ CV = NULL
 
 for ( i in 1:100){
   CR[i]=Crude_Monte_Carlo()
+
+}
+
+for (i in 1:100){
   AN[i]=Antithetic_variates()
+
+}
+
+for (i in 1:100){
   MM[i]=Moment_Matching()
+  
+}
+
+for (i in 1:100){
   CV[i]=Control_Variates_estimate()
 }
 
-var(CR) # variance of crude monte carlo
-var(AN) # variance of antithetic variates
-var(MM) # variance of moment matching
-var(CV) # variance of control variates
+VarCR=var(CR) # variance of crude monte carlo
+VarAN=var(AN) # variance of antithetic variates
+VarMM=var(MM) # variance of moment matching
+varCV=var(CV) # variance of control variates
 
 ```
 
@@ -781,6 +793,8 @@ lines(x = time_vec, y = Expl_conv, type = "l", lty = 1, col = "red",lwd =1.5)
 legend(x = 60, y = 0.62, legend = c("Closed Form", "Crank-Nicolson", "Implicit", "Explicit"), lty = c(1,1,1,1), col = c("black","green","blue", "red"), cex = 0.8, bty ="n")
 
 ```
+
+
 
 
 ```{r 13}
