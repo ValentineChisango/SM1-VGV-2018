@@ -44,7 +44,7 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=10000
   dt <- T/s # Length of sub-intervals
   sim_path = matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r # Initial rates on first row.
-  z = matrix(nrow=n, ncol=s)
+  z = matrix(nrow=n, ncol=s) # Create a matrix of standardised normal random variables
   for (i in 1:n){
     z[i,]=rnorm(s)
   }
@@ -87,9 +87,9 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
   sim_path_inv[1,] = r
   z = matrix(nrow=n, ncol=s)
   for (i in 1:n){
-    z[i,]=rnorm(s)
+    z[i,]=rnorm(s)# Create a matrix of standardised normal random variables
   }
-  z.=-z
+  z.=-z #Take the negative of above matrix
   
   
   for (i in 1:n){
@@ -136,12 +136,12 @@ Moment_Matching = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5,r = 0.
   sim_path[1,]= r
   z = matrix(nrow=n, ncol=s)
   for (i in 1:n){
-    z[i,]=rnorm(s)
+    z[i,]=rnorm(s) # Create a matrix of standardised normal random variables
   }
   
   z_m = matrix(nrow=n, ncol=s)
   for (i in 1:n){
-    z_m[i,]=z[i,]-mean(z[i,])
+    z_m[i,]=z[i,]-mean(z[i,]) # Perform the moment matching transformation on the                                 above generated random variables
   }
   # Moment matching transformation of Z_i to match finite moments 
   
@@ -185,7 +185,7 @@ CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=10000,s=1250){
   sim_path[1,]= r
   z = matrix(nrow=n, ncol=s)
   for (i in 1:n){
-    z[i,]=rnorm(s)
+    z[i,]=rnorm(s) # Create a matrix of standardised normal random variables
   }
   
   for (i in 1:n){
@@ -731,6 +731,7 @@ AN = NULL
 MM = NULL
 CV = NULL
 
+# Determine the price under each method 100 times
 for ( i in 1:100){
   CR[i]=Crude_Monte_Carlo()
 
