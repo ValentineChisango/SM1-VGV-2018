@@ -709,11 +709,12 @@ lines(1:8, senses[10,2:9], col="red",type = "p",pch = 19)
 lines(1:8, senses[11,2:9],col ="blue",type = "p",pch = 19)
 legend("bottomright", inset = c(-0,0), legend = c("beta=0.1", "beta=0.8", "beta=1.6"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n",pch = 19)
 
-plot(x=1:8,y=senses[1,2:9], ylim =c(0.58,0.7), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Alpha & Beta",  xaxt = "n", col ="black", pch = 19, font.main = 1)
+plot(x=1:8,y=senses[1,2:9], ylim =c(0.58,0.68), xlab = "Numerical Method", ylab = "Bond Price", main = "Sensitivity Test: Alpha & Beta",  xaxt = "n", col ="black", pch = 19, font.main = 1)
 axis(1, at=1:8, labels=xvec)
 lines(1:8, senses[12,2:9], col="red",type = "p",pch = 19)
 lines(1:8, senses[13,2:9],col ="blue",type = "p",pch = 19)
 legend("bottomright", inset = c(-0,0), legend = c("alpha=0.01,beta=0.1", "alpha=0.08,beta=0.8", "alpha=0.16,beta=1.6"), lty = c(1,1,1), col = c("red","black","blue", "red"), cex = 0.8, bty ="n",pch = 19)
+
 
 senses[,2:9] <-round(as.numeric(senses[,2:9]), digits=5)
 library(xtable)
@@ -815,15 +816,15 @@ for (i in 1:length(trials_vec)){
 }
 
 # Plot of convergence
-plot(closed_1, x = trials_vec, type = "l",ylim = c(0.61,0.63), xlab = "Number of Trials", ylab = "Estimated Price", lty = 2, lwd = 2,font.main = 1, main = "Monte Carlo Bond Prices over Number of Trials")
+plot(closed_1, x = trials_vec, type = "l",ylim = c(0.617,0.624), xlab = "Number of Trials", ylab = "Estimated Price", lty = 2, lwd = 3,font.main = 1, main = "Monte Carlo Bond Prices over Number of Trials")
 lines(x = trials_vec, y = CR_conv, type = "l", lty = 1, lwd =1.5)
-lines(x = trials_vec, y = AV_conv, type = "l", lty = 1, col = "blue", lwd =1.5)
-lines(x = trials_vec, y = MM_conv, type = "l", lty = 1, col = "green", lwd =1.5)
-lines(x = trials_vec, y = CV_conv, type = "l", lty = 1, col = "red", lwd = 2)
+lines(x = trials_vec, y = AV_conv, type = "l", lty = 1, col = "blue", lwd =4)
+lines(x = trials_vec, y = MM_conv, type = "l", lty = 1, col = "green", lwd =3)
+lines(x = trials_vec, y = CV_conv, type = "l", lty = 1, col = "red", lwd = 1.5)
 
-legend(x = 600, y = 0.62, legend = c("Closed Form", "Crude Monte Carlo", "Antithetic Variates"), lty = c(2,1,1), lwd =c(1.5,1.5,1.5),col = c("black","black","blue"), cex = 0.9, bty="n")
+legend(x = 600, y = 0.621, legend = c("Closed Form", "Crude Monte Carlo", "Antithetic Variates"), lty = c(2,1,1), lwd =c(1.5,1.5,1.5),col = c("black","black","blue"), cex = 0.9, bty="n")
 
-legend(x = 5000, y = 0.62, legend = c("Moment Matching","Control Variates"), lty = c(1,1), lwd =c(1.5,1.5),col = c("green","red"), cex = 0.9, bty="n")
+legend(x = 5000, y = 0.621, legend = c("Moment Matching","Control Variates"), lty = c(1,1), lwd =c(1.5,1.5),col = c("green","red"), cex = 0.9, bty="n")
 
 ```
 
