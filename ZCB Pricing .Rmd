@@ -815,15 +815,15 @@ for (i in 1:length(trials_vec)){
 }
 
 # Plot of convergence
-plot(closed_1, x = trials_vec, type = "l",ylim = c(0.619,0.63), xlab = "Number of Trials", ylab = "Estimated Price", lty = 2, lwd = 2,font.main = 1, main = "Monte Carlo Bond Prices over Number of Trials")
+plot(closed_1, x = trials_vec, type = "l",ylim = c(0.61,0.63), xlab = "Number of Trials", ylab = "Estimated Price", lty = 2, lwd = 2,font.main = 1, main = "Monte Carlo Bond Prices over Number of Trials")
 lines(x = trials_vec, y = CR_conv, type = "l", lty = 1, lwd =1.5)
 lines(x = trials_vec, y = AV_conv, type = "l", lty = 1, col = "blue", lwd =1.5)
 lines(x = trials_vec, y = MM_conv, type = "l", lty = 1, col = "green", lwd =1.5)
 lines(x = trials_vec, y = CV_conv, type = "l", lty = 1, col = "red", lwd = 2)
 
-legend(x = 600, y = 0.62, legend = c("Closed Form", "Crude Monte Carlo", "Antithetic Variates"), lty = c(2,1,1), lwd =c(1.5,1.5,1.5),col = c("black","black","blue"), cex = 0.8, bty="n")
+legend(x = 600, y = 0.62, legend = c("Closed Form", "Crude Monte Carlo", "Antithetic Variates"), lty = c(2,1,1), lwd =c(1.5,1.5,1.5),col = c("black","black","blue"), cex = 0.9, bty="n")
 
-legend(x = 1200, y = 0.62, legend = c("Moment Matching","Control Variates"), lty = c(1,1), lwd =c(1.5,1.5),col = c("green","red"), cex = 0.8, bty="n")
+legend(x = 5000, y = 0.62, legend = c("Moment Matching","Control Variates"), lty = c(1,1), lwd =c(1.5,1.5),col = c("green","red"), cex = 0.9, bty="n")
 
 ```
 
