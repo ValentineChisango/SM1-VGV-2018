@@ -44,11 +44,14 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=10000
   dt <- T/s # Length of sub-intervals
   sim_path = matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r # Initial rates on first row.
- 
+  z = matrix(nrow=n, ncol=s)
+  for (i in 1:n){
+    z[i,]=rnorm(s)
+  }
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*rnorm(1)# Discretize the SDE of the interest model using Euler Discretization to simulate rates over discrete sub-intervals
+      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i,j-1]# Discretize the SDE of the interest model using Euler Discretization to simulate rates over discrete sub-intervals
       sim_path[j,i]=sim_path[j-1,i]+dr
     }
   }
@@ -82,15 +85,18 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
   sim_path_inv= matrix(0,nrow = s+1, ncol = n)# matrix to generate interest paths using negative values of RV
   sim_path[1,] = r
   sim_path_inv[1,] = r
-  
+  z = matrix(nrow=n, ncol=s)
+  for (i in 1:n){
+    z[i,]=rnorm(s)
+  }
+  z.=-z
   
   
   for (i in 1:n){
-    z = rnorm(1)# Generate standard normal values
-    z.=-z
+
     for (j in 2:(s+1)){
-      dr = (alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z # Same Euler Discretization as in the Crude Monte Carlo function
-      dr_i = (alpha-beta*sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z. # Euler Discretization for the use of -Z_i
+      dr = (alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i,j-1] # Same Euler Discretization as in the Crude Monte Carlo function
+      dr_i = (alpha-beta*sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[i,j-1] # Euler Discretization for the use of -Z_i
       sim_path[j,i] =sim_path[j-1,i]+dr
       sim_path_inv[j,i] = sim_path_inv[j-1,i]+dr_i
       
@@ -128,13 +134,21 @@ Moment_Matching = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5,r = 0.
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r
-  z=rnorm(n)
-  z_m= z-mean(z) # Moment matching transformation of Z_i to match finite moments 
+  z = matrix(nrow=n, ncol=s)
+  for (i in 1:n){
+    z[i,]=rnorm(s)
+  }
+  
+  z_m = matrix(nrow=n, ncol=s)
+  for (i in 1:n){
+    z_m[i,]=z[i,]-mean(z[i,])
+  }
+  # Moment matching transformation of Z_i to match finite moments 
   
   # Follow the same process as in the Monte Carlo approach , but use the transformed Z_i's to simulate the rates
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z_m[i] 
+      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z_m[i,j-1] 
       sim_path[j,i]=sim_path[j-1,i]+dr
     }
   }
@@ -169,11 +183,14 @@ CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=10000,s=1250){
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r
-
+  z = matrix(nrow=n, ncol=s)
+  for (i in 1:n){
+    z[i,]=rnorm(s)
+  }
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=(alpha-beta*sim_path[j-1,i])*dt+(sigma*sqrt(dt)*rnorm(1)*sqrt(sim_path[j-1,i]))# Euler Discretization
+      dr=(alpha-beta*sim_path[j-1,i])*dt+(sigma*sqrt(dt)*z[i,j-1]*sqrt(sim_path[j-1,i]))# Euler Discretization
       sim_path[j,i]=sim_path[j-1,i]+dr
     
     }
@@ -798,7 +815,7 @@ for (i in 1:length(trials_vec)){
 }
 
 # Plot of convergence
-plot(closed_1, x = trials_vec, type = "l",ylim = c(0.57,0.70), xlab = "Number of Trials", ylab = "Estimated Price", lty = 2, lwd = 2,font.main = 1, main = "Monte Carlo Bond Prices over Number of Trials")
+plot(closed_1, x = trials_vec, type = "l",ylim = c(0.619,0.63), xlab = "Number of Trials", ylab = "Estimated Price", lty = 2, lwd = 2,font.main = 1, main = "Monte Carlo Bond Prices over Number of Trials")
 lines(x = trials_vec, y = CR_conv, type = "l", lty = 1, lwd =1.5)
 lines(x = trials_vec, y = AV_conv, type = "l", lty = 1, col = "blue", lwd =1.5)
 lines(x = trials_vec, y = MM_conv, type = "l", lty = 1, col = "green", lwd =1.5)
