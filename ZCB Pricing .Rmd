@@ -44,6 +44,7 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=10000
   dt <- T/s # Length of sub-intervals
   sim_path = matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path[1,]= r # Initial rates on first row.
+  
   z = matrix(nrow=n, ncol=s) # Create a matrix of standardised normal random variables
   for (i in 1:n){
     z[i,]=rnorm(s)
@@ -59,7 +60,7 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=10000
   # Monte Carlo Simulations
   Sum = colSums(sim_path[2:(s+1),]*dt) # Approximate the integral using summation
   int = exp(-Sum) # Take the exponent of the Integral
-  mean = mean(int) # Find the average of expression
+  mean = mean(int) # Find the average of expressions
   mean
   
 }
@@ -85,9 +86,10 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
   sim_path_inv= matrix(0,nrow = s+1, ncol = n)# matrix to generate interest paths using negative values of RV
   sim_path[1,] = r
   sim_path_inv[1,] = r
-  z = matrix(nrow=n, ncol=s)
+ 
+   z = matrix(nrow=n, ncol=s) # Create a matrix of standardised normal random variables
   for (i in 1:n){
-    z[i,]=rnorm(s)# Create a matrix of standardised normal random variables
+    z[i,]=rnorm(s)
   }
   z.=-z #Take the negative of above matrix
   
@@ -166,8 +168,8 @@ Moment_Matching = function(alpha = 0.08, beta = 0.8, sigma = 0.005, T = 5,r = 0.
 
 # Control Variates
 
-# Make use of the CIR model as the control variate process.
-# Below is the closed form solution under the CIR model
+# Make use of the Cox Ingeresoll Ross (CIR) model as the control variate process.
+# Below is the closed form solution of a ZCB under the CIR model
 bond_price_CIR <- function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08){
   h <- sqrt(beta^(2)+2*sigma^(2))
   A <-(2*h*exp((beta+h)*(T-t)/2)/(2*h+(beta+h)*(exp((T-t)*(h))-1)))^((2*alpha)/sigma^(2))
@@ -203,7 +205,7 @@ CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=10000,s=1250){
   result
   
 }
-# The control variate estimate is taken as the difference between the the Crude MOnte carlo estimates of the Vasicek and CIR model plus the closed form of the CIR model
+# The control variate estimate is taken as the difference between the the Crude Monte Carlo estimates of the Vasicek and CIR model plus the closed form solution of the CIR model
 
 Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08,n=10000,s=1250){
   Crude_Monte_Carlo(alpha,beta,sigma,T,r,n,s)- CIR_MC(alpha,beta,sigma,T,r,n,s)+bond_price_CIR(alpha,beta,sigma,t,T,r)
@@ -539,6 +541,8 @@ senses[1,7]=explicit()
 senses[1,8]=implicit()
 senses[1,9]=CN()
 
+#Interest rate changes
+#==============================================================================#
 #r=0.05
 senses[2,2]=bond_price(r=0.05)
 senses[2,3]=Crude_Monte_Carlo(r=0.05)
@@ -559,6 +563,8 @@ senses[3,7]=explicit(r=0.1)
 senses[3,8]=implicit(r=0.1)
 senses[3,9]=CN(r=0.1)
 
+#Time to maturity changes
+#==============================================================================#
 #T=1
 senses[4,2]=bond_price(T=1)
 senses[4,3]=Crude_Monte_Carlo(T=1)
@@ -579,6 +585,8 @@ senses[5,7]=explicit(T=10)
 senses[5,8]=implicit(T=10)
 senses[5,9]=CN(T=10)
 
+#Changes to the sigma parameter
+#===============================================================================#
 #sigma=0.001
 senses[6,2]=bond_price(sigma=0.001)
 senses[6,3]=Crude_Monte_Carlo(sigma=0.001)
@@ -600,7 +608,8 @@ senses[7,7]=explicit(sigma=0.01)
 senses[7,8]=implicit(sigma=0.01)
 senses[7,9]=CN(sigma=0.01)
 
-
+#Changes to the alpha parameter
+#===============================================================================#
 #alpha=0.01
 senses[8,2]=bond_price(alpha=0.01)
 senses[8,3]=Crude_Monte_Carlo(alpha=0.01)
@@ -621,6 +630,8 @@ senses[9,7]=explicit(alpha=0.16)
 senses[9,8]=implicit(alpha=0.16)
 senses[9,9]=CN(alpha=0.16)
 
+#Changes to the beta value
+#===============================================================================#
 #beta=0.1
 senses[10,2]=bond_price(beta=0.1)
 senses[10,3]=Crude_Monte_Carlo(beta=0.1)
@@ -641,6 +652,8 @@ senses[11,7]=explicit(beta=1.6)
 senses[11,8]=implicit(beta=1.6)
 senses[11,9]=CN(beta=1.6)
 
+#Changes to the alpha and beta parameter
+#===============================================================================#
 #alpha=0.01,beta=0.1
 senses[12,2]=bond_price(alpha=0.01,beta=0.1)
 senses[12,3]=Crude_Monte_Carlo(alpha=0.01,beta=0.1)
