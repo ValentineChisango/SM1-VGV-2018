@@ -52,7 +52,7 @@ Crude_Monte_Carlo=function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=10000
   
   for (i in 1:n){
     for (j in 2:(s+1)){
-      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i,j-1]# Discretize the SDE of the interest model using Euler Discretization to simulate rates over discrete sub-intervals
+      dr=(alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i,j-1]# Discretize the SDE of the interest model using the Euler Discretization to simulate rates over discrete sub-intervals
       sim_path[j,i]=sim_path[j-1,i]+dr
     }
   }
@@ -84,7 +84,7 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
   dt <- T/s # Length of sub-intervals
   sim_path= matrix(0,s+1,n) # Matrix that stores rate pathways
   sim_path_inv= matrix(0,nrow = s+1, ncol = n)# matrix to generate interest paths using negative values of RV
-  sim_path[1,] = r
+  sim_path[1,] = r # Inital rates on first row
   sim_path_inv[1,] = r
  
    z = matrix(nrow=n, ncol=s) # Create a matrix of standardised normal random variables
@@ -95,7 +95,6 @@ Antithetic_variates = function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=1
   
   
   for (i in 1:n){
-
     for (j in 2:(s+1)){
       dr = (alpha-beta*sim_path[j-1,i])*dt+sigma*sqrt(dt)*z[i,j-1] # Same Euler Discretization as in the Crude Monte Carlo function
       dr_i = (alpha-beta*sim_path_inv[j-1,i])*dt + sigma*sqrt(dt)*z.[i,j-1] # Euler Discretization for the use of -Z_i
@@ -205,7 +204,7 @@ CIR_MC= function(alpha =0.08,beta=0.8,sigma=0.005,T=5,r = 0.08,n=10000,s=1250){
   result
   
 }
-# The control variate estimate is taken as the difference between the the Crude Monte Carlo estimates of the Vasicek and CIR model plus the closed form solution of the CIR model
+# The Control Variate estimate is taken as the difference between the the Crude Monte Carlo estimates of the Vasicek and CIR model plus the closed form solution of the CIR model
 
 Control_Variates_estimate= function(alpha =0.08,beta=0.8,sigma=0.005,t=0,T=5,r = 0.08,n=10000,s=1250){
   Crude_Monte_Carlo(alpha,beta,sigma,T,r,n,s)- CIR_MC(alpha,beta,sigma,T,r,n,s)+bond_price_CIR(alpha,beta,sigma,t,T,r)
@@ -475,7 +474,7 @@ compare_mat <- matrix(NA,nrow = 7, ncol = 4) # matrix of comparison
 colnames(compare_mat) <- c("Price", "Known Price", "Error", "System Time")
 rownames(compare_mat) <- c("Crude Monte Carlo", "Antithetic Variates", "Moment Matching", "Control Variates", "Explicit Method", "Implicit Method", "Crank-Nicolson Method")
 
-compare_mat[,2] <- bond_price()
+compare_mat[,2] <- bond_price() # Known solution bond price
 
 # Crude Monte Carlo
 start_time <- proc.time()[1] # System time before method starts
@@ -520,7 +519,7 @@ compare_mat[7,4] <- proc.time()[1] - start_time
 compare_mat[7,3] <- compare_mat[7,2] - compare_mat[7,1]
 
 library(xtable) # package to get LaTex code for table
-xtable(compare_mat, digits = 5)
+xtable(compare_mat, digits = 5) # Output of LaTex code for table
        
 ```
 
@@ -730,8 +729,8 @@ legend("bottomright", inset = c(-0,0), legend = c("alpha=0.01,beta=0.1", "alpha=
 
 
 senses[,2:9] <-round(as.numeric(senses[,2:9]), digits=5)
-library(xtable)
-xtable(senses, digits = 5)
+library(xtable) 
+xtable(senses, digits = 5) # Table for data on sensitvity tests found in appendix B
 ```
 
 ```{r 11}
@@ -764,10 +763,10 @@ for (i in 1:100){
   CV[i]=Control_Variates_estimate()
 }
 
-VarCR=var(CR) # variance of crude monte carlo
-VarAN=var(AN) # variance of antithetic variates
-VarMM=var(MM) # variance of moment matching
-varCV=var(CV) # variance of control variates
+VarCR=var(CR) # variance of Crude Monte Carlo
+VarAN=var(AN) # variance of Antithetic Variates
+VarMM=var(MM) # variance of Moment Matching
+varCV=var(CV) # variance of Control Variates
 
 ```
 
